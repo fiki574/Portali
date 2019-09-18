@@ -16,13 +16,17 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Net;
+using System.Collections.Generic;
+
 namespace Portals
 {
-    public static class Constants
+    public partial class HttpServer
     {
-        public static readonly int
-            HttpServerPort = 5465,
-            ScrappersSleepInterval = 30 * 1000 * 60,
-            MainThreadSleepInterval = 5000;
+        [HttpHandler("/24h")]
+        private static string HandlePregled(HttpServer server, HttpListenerRequest request, Dictionary<string, string> parameters)
+        {
+            return "OK";
+        }
     }
 }

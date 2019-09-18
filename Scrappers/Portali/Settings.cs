@@ -16,13 +16,37 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace Portals
 {
     public static class _24h
+    {
+        public static readonly string[] URLs = new string[3]
+        {
+            "https://www.24sata.hr/feeds/aktualno.xml",
+            "https://www.24sata.hr/feeds/najnovije.xml",
+            "https://www.24sata.hr/feeds/news.xml"
+        };
+
+        public static readonly string
+                BaseUrl1 = "https://www.24sata.hr/",
+                BaseUrl2 = "https://www.24sata.hr/news",
+                TitleHtml = "<h1 class=\"article__title\">",
+                LeadHtml = "<h2 class=\"article__lead\">",
+                AuthorHtml = "<span class=\"article__author \">",
+                TimeHtml = "datetime=\"",
+                ContentHtml = "<div class=\"article__text\">",
+                ContentEndHtml = "<footer class=\"article__footer cf\">";
+    }
+
+    public static class Index
+    {
+    }
+
+    public static class Vecernji
+    {
+    }
+
+    public static class Jutarnji
     {
     }
 }

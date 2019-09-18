@@ -17,155 +17,87 @@
 */
 
 using System;
-using System.Net;
-using System.Linq;
-using System.Collections.Generic;
-using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace Portals
 {
     public class Program
     {
+        private static Thread[] Threads = null;
+        private static HttpServer Server = null;
+        private static bool IsRunning = false;
+        public static ThreadSafeList<Article> _24h = null;
+
         static void Main(string[] args)
         {
-            List<Article> _24h = Scrap24h();
-            var valid = _24h.Count(a => { return a.IsValidArticle(); });
-            var invalid = _24h.Count(a => { return !a.IsValidArticle(); });
-            Console.WriteLine($"Total articles: {_24h.Count} | Valid articles: {valid} | Invalid articles: {invalid}");
-            Console.ReadKey();
-        }
-
-        public static List<Article> Scrap24h()
-        {
-            string[] urls = new string[3]
-            {
-                "https://www.24sata.hr/feeds/aktualno.xml",
-                "https://www.24sata.hr/feeds/najnovije.xml",
-                "https://www.24sata.hr/feeds/news.xml"
-            };
-
-            string
-                baseurl1 = "https://www.24sata.hr/",
-                baseurl2 = "https://www.24sata.hr/news",
-                //komentari = "/komentari",
-                title = "<h1 class=\"article__title\">",
-                lead = "<h2 class=\"article__lead\">",
-                author = "<span class=\"article__author \">",
-                time = "datetime=\"",
-                content = "<div class=\"article__text\">",
-                contentend = "<footer class=\"article__footer cf\">";
-
-            string[] datas = new string[3] { "", "", "" };
-            List<string> links = new List<string>();
-            List<Article> articles = new List<Article>();
             try
             {
-                using (var wc = new WebClient())
-                {
-                    int count = 0;
-                    foreach (var url in urls)
-                        datas[count++] = wc.DownloadString(url);
-                }
+                Threads = new Thread[2];
+                IsRunning = true;
+                Console.WriteLine("Starting the 'Scrappers' and 'WebServer' threads");
 
-                foreach (var data in datas)
-                    foreach (var link in data.Split(new[] { "<link>" }, StringSplitOptions.None))
-                        foreach (var sublink in link.Split(new[] { "</link>" }, StringSplitOptions.None))
-                            if (sublink.StartsWith("http") && !sublink.Equals(baseurl1) && !sublink.Equals(baseurl2))
-                                links.Add(sublink);
+                Threads[0] = new Thread(WebServer);
+                Threads[0].Start();
 
-                links.ForEach(link =>
-                {
-                    if (!link.Equals(baseurl1) && !link.Equals(baseurl2) && link.Contains(baseurl1))
-                    {
-                        using (var wc = new WebClient())
-                        {
-                            var article = new Article();
-                            article.Link = link;
+                Threads[1] = new Thread(Scrappers);
+                Threads[1].Start();
 
-                            var i = link.Substring(link.LastIndexOf("/") + 1);
-                            article.ID = i;
-
-                            var d = wc.DownloadString(link);
-
-                            try
-                            {
-                                var t = d.Substring(d.IndexOf(title) + title.Length).Split("</h1>")[0].Replace("&#39;", "'").Replace("&quot;", "\"").Trim();
-                                article.Title = title;
-                            }
-                            catch
-                            {
-                                article.Title = "exception";
-                            }
-
-                            try
-                            {
-                                var l = d.Substring(d.IndexOf(lead) + lead.Length).Split("</h2>")[0].Replace("&#39;", "'").Replace("&quot;", "\"").Trim();
-                                article.Lead = l;
-                            }
-                            catch
-                            {
-                                article.Lead = "exception";
-                            }
-
-                            try
-                            {
-                                var a = d.Substring(d.IndexOf(author)).Split("</span>")[1].Replace("<span>", "").Trim();
-                                article.Author = a;
-                            }
-                            catch
-                            {
-                                article.Author = "exception";
-                            }
-
-                            try
-                            {
-                                var t = d.Substring(d.IndexOf(time) + time.Length).Split("\"")[0].Trim();
-                                article.Time = t;
-                            }
-                            catch
-                            {
-                                article.Time = "exception";
-                            }
-
-                            try
-                            {
-                                var c = d.Substring(d.IndexOf(content) + content.Length).Split(contentend)[0].Trim();
-                                MatchCollection matches = Regex.Matches(c, "<p>(.*?)</p>");
-                                c = "";
-                                if (matches.Count > 0)
-                                    foreach (Match m in matches)
-                                    {
-                                        var s = m.Groups[1].ToString().Trim();
-                                        if (!s.Contains("Tema: <a"))
-                                            c += s + "\n";
-                                    }
-
-                                article.Content = c.Trim().Replace("<strong>POGLEDAJTE VIDEO:</strong>", "").Replace("<strong>POGLEDAJTE VIDEO</strong>", "").Trim();
-                            }
-                            catch
-                            {
-                                article.Content = "exception";
-                            }
-
-                            try
-                            {
-                                //komentari
-                            }
-                            catch
-                            {
-                                article.Comments = null;
-                            }
-
-                            articles.Add(article);
-                        }
-                    }
-                });
+                while (IsRunning)
+                    Thread.Sleep(Constants.MainThreadSleepInterval);
             }
             catch (Exception ex)
             {
+                IsRunning = false;
                 Console.WriteLine(ex.ToString());
             }
-            return articles;
+            finally
+            {
+                Console.WriteLine("IsRunning is false, stopping everything");
+                _24h = null;
+                Server.Stop();
+                Server = null;
+                Threads[0].Join();
+                Threads[1].Join();
+                Threads = null;
+                Console.WriteLine("Stopped everything");
+            }
+        }
+
+        static void Scrappers()
+        {
+            Console.WriteLine("'Scrappers' thread started");
+            try
+            {
+                while (IsRunning)
+                {
+                    _24h = Utilities.Scrap24h();
+                    var valid = _24h.Count(a => { return a.IsValidArticle(); });
+                    var invalid = _24h.Count(a => { return !a.IsValidArticle(); });
+                    Console.WriteLine($"Scrapped 24sata.hr\nTotal articles: {_24h.Count(a => true)}\nValid articles: {valid}\nInvalid articles: {invalid}");
+                    //_24h.ForEach(a => { System.IO.File.WriteAllText("articles/24h/" + a.ID + ".json", a.ToJson()); });
+                    Thread.Sleep(Constants.ScrappersSleepInterval);
+                }
+            }
+            catch (Exception ex)
+            {
+                IsRunning = false;
+                Console.WriteLine(ex.ToString());
+            }
+        }
+
+        static void WebServer()
+        {
+            Console.WriteLine("'WebServer' thread started");
+            try
+            {
+                Server = new HttpServer(Constants.HttpServerPort);
+                Server.Start();
+            }
+            catch (Exception ex)
+            {
+                IsRunning = false;
+                Console.WriteLine(ex.ToString());
+            }
         }
     }
 }

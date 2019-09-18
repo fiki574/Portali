@@ -16,13 +16,22 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System;
+
 namespace Portals
 {
-    public static class Constants
+    [AttributeUsage(AttributeTargets.Method)]
+    public class HttpHandler : Attribute
     {
-        public static readonly int
-            HttpServerPort = 5465,
-            ScrappersSleepInterval = 30 * 1000 * 60,
-            MainThreadSleepInterval = 5000;
+        public string Url
+        {
+            get;
+            private set;
+        }
+
+        public HttpHandler(string url)
+        {
+            Url = url;
+        }
     }
 }

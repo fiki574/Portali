@@ -16,22 +16,13 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System.Collections.Generic;
-using System.Linq;
 using Newtonsoft.Json;
 
 namespace Portals
 {
     public class Article
     {
-        public string Link;
-        public string ID;
-        public string Title;
-        public string Lead;
-        public string Author;
-        public string Time;
-        public string Content;
-        public List<Comment> Comments;
+        public string Link, ID, Title, Lead, Author, Time, Content;
 
         public override string ToString()
         {
@@ -51,43 +42,25 @@ namespace Portals
                 return false;
         }
 
-        public bool HasComments()
+        public void ReplaceInvalidText()
         {
-            return Comments != null && Comments.Count > 0;
+            if (IsValidArticle())
+                return;
+
+            if (Title.Equals("exception"))
+                Title = "<i>nema naslova</i>";
+
+            if (Lead.Equals("exception"))
+                Lead = "<i>nema podnaslova</i>";
+
+            if (Author.Equals("exception"))
+                Author = "<i>nema autora</i>";
+
+            if (Time.Equals("exception"))
+                Time = "<i>nema vremena objave</i>";
+
+            if (Content.Equals("exception"))
+                Content = "<i>nema sadržaja</i>";
         }
-
-        public bool HasAllValidComments()
-        {
-            return Comments.Count(c => { return c.IsValidComment(); }) == Comments.Count;
-        }
-
-        //public void ReplaceInvalidText();
-    }
-
-    public class Comment
-    {
-        public string Author;
-        public string Time;
-        public string Content;
-
-        public override string ToString()
-        {
-            return $"[Author: {Author} | Time: {Time}]";
-        }
-
-        public string ToJson()
-        {
-            return JsonConvert.SerializeObject(this);
-        }
-
-        public bool IsValidComment()
-        {
-            if (!Author.Equals("exception") && !Time.Equals("exception") && !Content.Equals("exception"))
-                return true;
-            else
-                return false;
-        }
-
-        //public void ReplaceInvalidText();
     }
 }
