@@ -16,8 +16,6 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-using Newtonsoft.Json;
-
 namespace Portals
 {
     public class Article
@@ -27,11 +25,6 @@ namespace Portals
         public override string ToString()
         {
             return $"[ID: {ID} | Title: {Title} | Author: {Author}]";
-        }
-
-        public string ToJson()
-        {
-            return JsonConvert.SerializeObject(this);
         }
 
         public string ToHtml()

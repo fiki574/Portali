@@ -47,7 +47,6 @@ namespace Portals
     {
         public static readonly string 
                 Html = File.ReadAllText("html/portals/index.html").Replace("@articles@", "<i>Trenutno nedostupno</i>");
-       
     }
 
     public static class Jutarnji
@@ -60,6 +59,5 @@ namespace Portals
     {
         public static readonly string 
                 Html = File.ReadAllText("html/portals/vecernji.html").Replace("@articles@", "<i>Trenutno nedostupno</i>");
-
     }
 }
