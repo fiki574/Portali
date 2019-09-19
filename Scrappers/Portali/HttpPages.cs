@@ -51,7 +51,7 @@ namespace Portals
                         articles += article;
                     });
                 else
-                    return "Trenutno traje dohvaćanje članaka sa 24sata, ubrzo će biti dostupni. Osvježite ovu stranicu kro maksimalno jednu minutu.";
+                    return "Trenutno traje dohvaćanje članaka sa 24sata, ubrzo će biti dostupni. Osvježite ovu stranicu kroz maksimalno jednu minutu.";
 
                 return _24h.Html.Replace("@articles@", articles);
             }

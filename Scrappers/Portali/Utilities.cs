@@ -150,7 +150,8 @@ namespace Portals
                                 article.Content = "exception";
                             }
 
-                            articles.Add(article);
+                            if (!articles.Contains(a => a.ID == article.ID))
+                                articles.Add(article);
                         }
                     }
                 });
