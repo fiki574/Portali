@@ -38,7 +38,7 @@ namespace Portals
             {
                 MapHandlers();
                 m_listener = new HttpListener();
-                m_listener.Prefixes.Add("http://localhost:" + port + "/");
+                m_listener.Prefixes.Add("http://*:" + port + "/");
             }
             catch (Exception ex)
             {

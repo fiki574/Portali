@@ -60,5 +60,19 @@ namespace Portals
             if (Content.Equals("exception"))
                 Content = "<i>nema sadržaja</i>";
         }
+
+        public bool ShouldBeDisplayed()
+        {
+            if (Title.ToLowerInvariant().Contains("igraj i osvoji") || Title.ToLowerInvariant().Contains("osvojite") || Title.ToLowerInvariant().Contains("kupon") || Title.ToLowerInvariant().Contains("prijavi se"))
+                return false;
+
+            if (Author.ToLowerInvariant().Contains("promo") || Author.ToLowerInvariant().Contains("sponzor") || Author.ToLowerInvariant().Contains("plaćeni") || Author.ToLowerInvariant().Contains("oglas") || Author.ToLowerInvariant().Contains("<i>nema autora</i>"))
+                return false;
+
+            if (Content.ToLowerInvariant().Contains("pravila korištenja osobnih podataka") || Content.ToLowerInvariant().Contains("pravila privatnosti") || Content.ToLowerInvariant().Contains("prijavi se"))
+                return false;
+
+            return true;
+        }
     }
 }

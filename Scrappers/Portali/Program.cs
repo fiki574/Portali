@@ -104,11 +104,19 @@ namespace Portals
             {
                 IsScrapping24h = true;
                 _24h = Utilities.Scrap24h();
-                var valid = _24h.Count(a => { return a.IsValidArticle(); });
-                var invalid = _24h.Count(a => { return !a.IsValidArticle(); });
-                Console.WriteLine($"Scrapped 24sata.hr\nTotal articles: {_24h.Count(a => true)}\nValid articles: {valid}\nInvalid articles: {invalid}");
+                Console.WriteLine($"Scrapped 24sata.hr -> Total articles: {_24h.Count(a => true)}");
                 Utilities.ClearDirectory("html/articles/24h");
-                _24h.ForEach(a => { a.ReplaceInvalidText(); File.WriteAllText("html/articles/24h/" + a.ID + ".html", a.ToHtml()); });
+                ThreadSafeList<string> remove = new ThreadSafeList<string>();
+                _24h.ForEach(a => 
+                {
+                    a.ReplaceInvalidText();
+                    if (!a.ShouldBeDisplayed())
+                        remove.Add(a.ID);
+                });
+                remove.ForEach(s => { _24h.Remove(a => a.ID == s); });
+                Console.WriteLine($"Filtering out {remove.Count(s => true)} articles that shouldn't be displayed");
+                remove.Clear();
+                _24h.ForEach(a => { File.WriteAllText("html/articles/24h/" + a.ID + ".html", a.ToHtml()); });
                 IsScrapping24h = false;
             }
             catch (Exception ex)

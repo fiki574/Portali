@@ -123,7 +123,8 @@ namespace Portals
                             try
                             {
                                 var t = d.Substring(d.IndexOf(_24h.TimeHtml) + _24h.TimeHtml.Length).Split("\"")[0].Trim();
-                                article.Time = t;
+                                DateTime dt = DateTime.Parse(t);
+                                article.Time = dt.ToString();
                             }
                             catch
                             {
@@ -134,16 +135,28 @@ namespace Portals
                             {
                                 var c = d.Substring(d.IndexOf(_24h.ContentHtml) + _24h.ContentHtml.Length).Split(_24h.ContentEndHtml)[0].Trim();
                                 MatchCollection matches = Regex.Matches(c, "<p>(.*?)</p>");
-                                c = "";
+                                var tmp = "";
                                 if (matches.Count > 0)
                                     foreach (Match m in matches)
                                     {
                                         var s = m.Groups[1].ToString().Trim();
                                         if (!s.Contains("Tema: <a"))
-                                            c += s + "<br><br>";
+                                            tmp += s + "<br><br>";
                                     }
 
-                                article.Content = c.Trim().Replace("<strong>POGLEDAJTE VIDEO:</strong>", "").Replace("<strong>POGLEDAJTE VIDEO</strong>", "").Replace("POGLEDAJTE VIDEO:", "").Replace("POGLEDAJTE VIDEO", "").Trim();
+                                article.Content += tmp.Trim().Replace("<strong>POGLEDAJTE VIDEO:</strong>", "").Replace("<strong>POGLEDAJTE VIDEO</strong>", "").Replace("POGLEDAJTE VIDEO:", "").Replace("POGLEDAJTE VIDEO", "").Trim();
+
+                                matches = Regex.Matches(c, "<p style=\"margin:0cm 0cm 10pt; text-align:start; -webkit-text-stroke-width:0px\">(.*?)</p>");
+                                tmp = "";
+                                if (matches.Count > 0)
+                                    foreach (Match m in matches)
+                                    {
+                                        var s = m.Groups[1].ToString().Trim();
+                                        if (!s.Contains("Tema: <a"))
+                                            tmp += s + "<br><br>";
+                                    }
+
+                                article.Content += tmp.Trim().Replace("<strong>POGLEDAJTE VIDEO:</strong>", "").Replace("<strong>POGLEDAJTE VIDEO</strong>", "").Replace("POGLEDAJTE VIDEO:", "").Replace("POGLEDAJTE VIDEO", "").Trim();
                             }
                             catch
                             {
