@@ -17,11 +17,12 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Text;
 using System.Reflection;
 using System.Threading;
+using System.Collections.Generic;
 
 namespace Portals
 {
@@ -33,36 +34,64 @@ namespace Portals
 
         public HttpServer(int port)
         {
-            MapHandlers();
-            m_listener = new HttpListener();
-            m_listener.Prefixes.Add("http://localhost:" + port + "/");
+            try
+            {
+                MapHandlers();
+                m_listener = new HttpListener();
+                m_listener.Prefixes.Add("http://localhost:" + port + "/");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
         }
 
         public void Start()
         {
-            m_listener.Start();
-            m_listener.BeginGetContext(OnGetContext, null);
+            try
+            {
+                m_listener.Start();
+                m_listener.BeginGetContext(OnGetContext, null);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
         }
 
         public void Stop()
         {
-            m_listener.Close();
-            m_listener = null;
+            try
+            {
+                m_listener.Close();
+                m_listener = null;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
         }
 
         private void MapHandlers()
         {
-            foreach (MethodInfo methodInfo in typeof(HttpServer).GetMethods(BindingFlags.NonPublic | BindingFlags.Static))
+            try
             {
-                var attributes = methodInfo.GetCustomAttributes(typeof(HttpHandler), false);
-                if (attributes.Length < 1)
-                    continue;
+                foreach (MethodInfo methodInfo in typeof(HttpServer).GetMethods(BindingFlags.NonPublic | BindingFlags.Static))
+                {
+                    var attributes = methodInfo.GetCustomAttributes(typeof(HttpHandler), false);
+                    if (attributes.Length < 1)
+                        continue;
 
-                HttpHandler attribute = (HttpHandler)attributes[0];
-                if (m_handlers.ContainsKey(attribute.Url))
-                    continue;
+                    HttpHandler attribute = (HttpHandler)attributes[0];
+                    if (m_handlers.ContainsKey(attribute.Url))
+                        continue;
 
-                m_handlers.Add(attribute.Url, new KeyValuePair<HttpHandler, HttpHandlerDelegate>(attribute, (HttpHandlerDelegate)Delegate.CreateDelegate(typeof(HttpHandlerDelegate), methodInfo)));
+                    m_handlers.Add(attribute.Url, new KeyValuePair<HttpHandler, HttpHandlerDelegate>(attribute, (HttpHandlerDelegate)Delegate.CreateDelegate(typeof(HttpHandlerDelegate), methodInfo)));
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
             }
         }
 
@@ -105,12 +134,13 @@ namespace Portals
                 if (!m_handlers.TryGetValue(raw[0], out pair))
                     return;
 
-                context.Response.ContentType = "text/html";
                 var result = pair.Value(this, context.Request, parameters);
                 if (result == null)
                     return;
 
-                context.Response.ContentEncoding = System.Text.Encoding.UTF8;
+                context.Response.ContentType = "text/html";
+                context.Response.ContentEncoding = Encoding.UTF8;
+
                 using (StreamWriter writer = new StreamWriter(context.Response.OutputStream, context.Response.ContentEncoding))
                     writer.Write(result);
             }

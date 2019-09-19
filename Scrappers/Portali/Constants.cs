@@ -16,6 +16,8 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.IO;
+
 namespace Portals
 {
     public static class Constants
@@ -24,5 +26,9 @@ namespace Portals
             HttpServerPort = 5465,
             ScrappersSleepInterval = 30 * 1000 * 60,
             MainThreadSleepInterval = 5000;
+
+        public static readonly string 
+            ImageData = "data:image/png;base64,@base64@", 
+            Homepage = File.ReadAllText("html/index.html").Replace("@base64@", Utilities.GetBase64ForImage("html/images/portali.png"));
     }
 }

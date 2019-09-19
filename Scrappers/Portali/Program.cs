@@ -17,6 +17,7 @@
 */
 
 using System;
+using System.IO;
 using System.Threading;
 
 namespace Portals
@@ -27,6 +28,7 @@ namespace Portals
         private static HttpServer Server = null;
         private static bool IsRunning = false;
         public static ThreadSafeList<Article> _24h = null;
+        public static bool IsScrapping24h = false;
 
         static void Main(string[] args)
         {
@@ -70,11 +72,7 @@ namespace Portals
             {
                 while (IsRunning)
                 {
-                    _24h = Utilities.Scrap24h();
-                    var valid = _24h.Count(a => { return a.IsValidArticle(); });
-                    var invalid = _24h.Count(a => { return !a.IsValidArticle(); });
-                    Console.WriteLine($"Scrapped 24sata.hr\nTotal articles: {_24h.Count(a => true)}\nValid articles: {valid}\nInvalid articles: {invalid}");
-                    //_24h.ForEach(a => { System.IO.File.WriteAllText("articles/24h/" + a.ID + ".json", a.ToJson()); });
+                    Scrap24h();
                     Thread.Sleep(Constants.ScrappersSleepInterval);
                 }
             }
@@ -92,6 +90,26 @@ namespace Portals
             {
                 Server = new HttpServer(Constants.HttpServerPort);
                 Server.Start();
+            }
+            catch (Exception ex)
+            {
+                IsRunning = false;
+                Console.WriteLine(ex.ToString());
+            }
+        }
+
+        static void Scrap24h()
+        {
+            try
+            {
+                IsScrapping24h = true;
+                _24h = Utilities.Scrap24h();
+                var valid = _24h.Count(a => { return a.IsValidArticle(); });
+                var invalid = _24h.Count(a => { return !a.IsValidArticle(); });
+                Console.WriteLine($"Scrapped 24sata.hr\nTotal articles: {_24h.Count(a => true)}\nValid articles: {valid}\nInvalid articles: {invalid}");
+                Utilities.ClearDirectory("html/articles/24h");
+                _24h.ForEach(a => { a.ReplaceInvalidText(); File.WriteAllText("html/articles/24h/" + a.ID + ".html", a.ToHtml()); });
+                IsScrapping24h = false;
             }
             catch (Exception ex)
             {

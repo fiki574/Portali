@@ -16,6 +16,8 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.IO;
+
 namespace Portals
 {
     public static class _24h
@@ -35,18 +37,29 @@ namespace Portals
                 AuthorHtml = "<span class=\"article__author \">",
                 TimeHtml = "datetime=\"",
                 ContentHtml = "<div class=\"article__text\">",
-                ContentEndHtml = "<footer class=\"article__footer cf\">";
+                ContentEndHtml = "<footer class=\"article__footer cf\">",
+                ArticleListHtml = "<div class=\"row\"><div class=\"ui segment\"><a target=\"_blank\" href=\"@portal@\"><img class=\"ui left floated image\" src=\"@image@\" style=\"height: 128px; width: 128px;\"/></a><h1>@title@</h1><p>@lead@</p><a target=\"_blank\" href=\"@link@\"><button class=\"ui right floated primary button\">Otvori originalni članak</button></a><a href=\"/articles/24h&id=@article@\"><button class=\"ui right floated secondary button\">Pretpregledaj članak</button></a><br><br></div></div><br>",
+                ArticleHtml = File.ReadAllText("html/templates/24h-article.html"),
+                Html = File.ReadAllText("html/portals/24h.html");
     }
 
     public static class Index
     {
-    }
-
-    public static class Vecernji
-    {
+        public static readonly string 
+                Html = File.ReadAllText("html/portals/index.html").Replace("@articles@", "<i>Trenutno nedostupno</i>");
+       
     }
 
     public static class Jutarnji
     {
+        public static readonly string 
+                Html = File.ReadAllText("html/portals/jutarnji.html").Replace("@articles@", "<i>Trenutno nedostupno</i>");
+    }
+
+    public static class Vecernji
+    {
+        public static readonly string 
+                Html = File.ReadAllText("html/portals/vecernji.html").Replace("@articles@", "<i>Trenutno nedostupno</i>");
+
     }
 }

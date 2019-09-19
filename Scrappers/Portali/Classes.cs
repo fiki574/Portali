@@ -34,6 +34,11 @@ namespace Portals
             return JsonConvert.SerializeObject(this);
         }
 
+        public string ToHtml()
+        {
+            return _24h.ArticleHtml.Replace("@title@", Title).Replace("@lead@", Lead).Replace("@author@", Author).Replace("@time@", Time).Replace("@content@", Content).Replace("@link@", Link);
+        }
+
         public bool IsValidArticle()
         {
             if (!Title.Equals("exception") && !Lead.Equals("exception") && !Author.Equals("exception") && !Time.Equals("exception") && !Content.Equals("exception"))

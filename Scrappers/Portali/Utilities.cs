@@ -17,6 +17,7 @@
 */
 
 using System;
+using System.IO;
 using System.Net;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
@@ -25,6 +26,36 @@ namespace Portals
 {
     public static class Utilities
     {
+        public static string GetBase64ForImage(string path)
+        {
+            try
+            {
+                return Convert.ToBase64String(File.ReadAllBytes(path));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return null;
+            }
+        }
+
+        public static void ClearDirectory(string path)
+        {
+            try
+            {
+                DirectoryInfo di = new DirectoryInfo(path);
+                foreach (var file in di.GetFiles())
+                    file.Delete();
+
+                foreach (var dir in di.GetDirectories())
+                    dir.Delete(true);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+        }
+
         public static ThreadSafeList<Article> Scrap24h()
         {
             string[] datas = new string[3] { "", "", "" };
@@ -40,8 +71,8 @@ namespace Portals
                 }
 
                 foreach (var data in datas)
-                    foreach (var link in data.Split(new[] { "<link>" }, StringSplitOptions.None))
-                        foreach (var sublink in link.Split(new[] { "</link>" }, StringSplitOptions.None))
+                    foreach (var lnk in data.Split(new[] { "<link>" }, StringSplitOptions.None))
+                        foreach (var sublink in lnk.Split(new[] { "</link>" }, StringSplitOptions.None))
                             if (sublink.StartsWith("http") && !sublink.Equals(_24h.BaseUrl1) && !sublink.Equals(_24h.BaseUrl2))
                                 links.Add(sublink);
 
@@ -109,10 +140,10 @@ namespace Portals
                                     {
                                         var s = m.Groups[1].ToString().Trim();
                                         if (!s.Contains("Tema: <a"))
-                                            c += s + "\n";
+                                            c += s + "<br><br>";
                                     }
 
-                                article.Content = c.Trim().Replace("<strong>POGLEDAJTE VIDEO:</strong>", "").Replace("<strong>POGLEDAJTE VIDEO</strong>", "").Trim();
+                                article.Content = c.Trim().Replace("<strong>POGLEDAJTE VIDEO:</strong>", "").Replace("<strong>POGLEDAJTE VIDEO</strong>", "").Replace("POGLEDAJTE VIDEO:", "").Replace("POGLEDAJTE VIDEO", "").Trim();
                             }
                             catch
                             {
