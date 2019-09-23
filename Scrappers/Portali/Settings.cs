@@ -29,6 +29,14 @@ namespace Portals
             "https://www.24sata.hr/feeds/news.xml"
         };
 
+        public static readonly string[] ContentRegex = new string[4]
+        {
+            "<p>(.*?)</p>",
+            "<p style=\"margin:0cm 0cm 10pt; text-align:start; -webkit-text-stroke-width:0px\">(.*?)</p>",
+            "<p dir=\"ltr\">(.*?)</p>",
+            "<div class=\"article__text\">(.*?)</div>"
+        };
+
         public static readonly string
                 BaseUrl1 = "https://www.24sata.hr/",
                 BaseUrl2 = "https://www.24sata.hr/news",
