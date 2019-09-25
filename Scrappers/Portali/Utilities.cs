@@ -172,12 +172,23 @@ namespace Portals
             return null;
         }
 
+        public static ThreadSafeList<Article> ScrapJutarnji()
+        {
+            return null;
+        }
+
         public static ThreadSafeList<Article> ScrapVecernji()
         {
             return null;
         }
 
-        public static ThreadSafeList<Article> ScrapJutarnji()
+
+        public static ThreadSafeList<Article> ScrapDnevnik()
+        {
+            return null;
+        }
+
+        public static ThreadSafeList<Article> ScrapNet()
         {
             return null;
         }

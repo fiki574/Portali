@@ -27,13 +27,13 @@ namespace Portals
     {
         
         [HttpHandler("/")]
-        private static string HandleHome1(HttpServer server, HttpListenerRequest request, Dictionary<string, string> parameters)
+        private static string HandleBlank(HttpServer server, HttpListenerRequest request, Dictionary<string, string> parameters)
         {
-            return HandleHome2(server, request, parameters);
+            return HandleHome(server, request, parameters);
         }
 
         [HttpHandler("/index.html")]
-        private static string HandleHome2(HttpServer server, HttpListenerRequest request, Dictionary<string, string> parameters)
+        private static string HandleHome(HttpServer server, HttpListenerRequest request, Dictionary<string, string> parameters)
         {
             return Constants.Homepage;
         }
@@ -75,9 +75,21 @@ namespace Portals
         }
 
         [HttpHandler("/portals/vecernji.html")]
-        private static string HandlePregled(HttpServer server, HttpListenerRequest request, Dictionary<string, string> parameters)
+        private static string HandleVecernji(HttpServer server, HttpListenerRequest request, Dictionary<string, string> parameters)
         {
             return Vecernji.Html;
+        }
+
+        [HttpHandler("/portals/dnevnik.html")]
+        private static string HandleDnevnik(HttpServer server, HttpListenerRequest request, Dictionary<string, string> parameters)
+        {
+            return Dnevnik.Html;
+        }
+
+        [HttpHandler("/portals/net.html")]
+        private static string HandleNet(HttpServer server, HttpListenerRequest request, Dictionary<string, string> parameters)
+        {
+            return Net.Html;
         }
 
         [HttpHandler("/articles/24h")]
@@ -90,6 +102,101 @@ namespace Portals
 
                 var id = parameters["id"];
                 var html = File.ReadAllText($"html/articles/24h/{id}.html");
+                return html;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return "Greška: " + ex.ToString();
+            }
+        }
+
+        [HttpHandler("/articles/index")]
+        private static string HandleIndexArticle(HttpServer server, HttpListenerRequest request, Dictionary<string, string> parameters)
+        {
+            try
+            {
+                if (!parameters.ContainsKey("id"))
+                    return "Neispravan zahtjev";
+
+                var id = parameters["id"];
+                var html = File.ReadAllText($"html/articles/index/{id}.html");
+                return html;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return "Greška: " + ex.ToString();
+            }
+        }
+
+        [HttpHandler("/articles/jutarnji")]
+        private static string HandleJutarnjiArticle(HttpServer server, HttpListenerRequest request, Dictionary<string, string> parameters)
+        {
+            try
+            {
+                if (!parameters.ContainsKey("id"))
+                    return "Neispravan zahtjev";
+
+                var id = parameters["id"];
+                var html = File.ReadAllText($"html/articles/jutarnji/{id}.html");
+                return html;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return "Greška: " + ex.ToString();
+            }
+        }
+
+        [HttpHandler("/articles/vecernji")]
+        private static string HandleVecernjiArticle(HttpServer server, HttpListenerRequest request, Dictionary<string, string> parameters)
+        {
+            try
+            {
+                if (!parameters.ContainsKey("id"))
+                    return "Neispravan zahtjev";
+
+                var id = parameters["id"];
+                var html = File.ReadAllText($"html/articles/vecernji/{id}.html");
+                return html;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return "Greška: " + ex.ToString();
+            }
+        }
+
+        [HttpHandler("/articles/dnevnik")]
+        private static string HandleDnevnikArticle(HttpServer server, HttpListenerRequest request, Dictionary<string, string> parameters)
+        {
+            try
+            {
+                if (!parameters.ContainsKey("id"))
+                    return "Neispravan zahtjev";
+
+                var id = parameters["id"];
+                var html = File.ReadAllText($"html/articles/dnevnik/{id}.html");
+                return html;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return "Greška: " + ex.ToString();
+            }
+        }
+
+        [HttpHandler("/articles/net")]
+        private static string HandleNetArticle(HttpServer server, HttpListenerRequest request, Dictionary<string, string> parameters)
+        {
+            try
+            {
+                if (!parameters.ContainsKey("id"))
+                    return "Neispravan zahtjev";
+
+                var id = parameters["id"];
+                var html = File.ReadAllText($"html/articles/net/{id}.html");
                 return html;
             }
             catch (Exception ex)
