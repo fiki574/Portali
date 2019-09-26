@@ -31,7 +31,6 @@ namespace Portals
         private delegate string HttpHandlerDelegate(HttpServer server, HttpListenerRequest request, Dictionary<string, string> parameters);
         private Dictionary<string, KeyValuePair<HttpHandler, HttpHandlerDelegate>> m_handlers = new Dictionary<string, KeyValuePair<HttpHandler, HttpHandlerDelegate>>();
         private HttpListener m_listener;
-        public static int RequestCount = 0;
 
         public HttpServer(int port)
         {
@@ -145,13 +144,10 @@ namespace Portals
 
                 using (StreamWriter writer = new StreamWriter(context.Response.OutputStream, context.Response.ContentEncoding))
                     writer.Write(result);
-
-                Console.WriteLine($"Response sent to: ${context.Request.RemoteEndPoint.Address.ToString()}");
             }
             finally
             {
                 context.Response.Close();
-                RequestCount += 1;
             }
         }
     }

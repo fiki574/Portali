@@ -25,7 +25,7 @@ namespace Portals
         public static readonly int
             HttpServerPort = 5465,
             ScrappersSleepInterval = 30 * 1000 * 60,
-            MainThreadSleepInterval = 900000;
+            MainThreadSleepInterval = 5000;
 
         public static readonly string 
             ImageData = "data:image/png;base64,@base64@", 

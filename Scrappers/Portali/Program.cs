@@ -45,10 +45,7 @@ namespace Portals
                 Threads[1].Start();
 
                 while (IsRunning)
-                {
                     Thread.Sleep(Constants.MainThreadSleepInterval);
-                    Console.WriteLine($"Total requests since application boot: {HttpServer.RequestCount}");
-                }
             }
             catch (Exception ex)
             {
