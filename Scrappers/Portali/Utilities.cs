@@ -142,7 +142,7 @@ namespace Portals
                                         foreach (Match m in matches)
                                         {
                                             var s = m.Groups[1].ToString().Trim();
-                                            if (!s.Contains("Tema: <a") && !s.Contains("SERIJAL '24 PITANJA'"))
+                                            if (!s.Contains("Tema: <a") && !s.Contains("SERIJAL '"))
                                                 tmp += s + "<br><br>";
                                         }
 
