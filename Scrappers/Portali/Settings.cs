@@ -47,37 +47,47 @@ namespace Portals
                 ContentHtml = "<div class=\"article__text\">",
                 ContentEndHtml = "<footer class=\"article__footer cf\">",
                 ArticleListHtml = "<div class=\"row\"><div class=\"ui segment\"><h1>@title@</h1><p>@lead@</p><a target=\"_blank\" href=\"@link@\"><button class=\"ui right floated primary button\">Otvori originalni članak</button></a><a href=\"/articles/24h&id=@article@\"><button class=\"ui right floated secondary button\">Pretpregledaj članak</button></a><br><br><br><br></div></div><br>",
-                ArticleHtml = File.ReadAllText("html/templates/article.html"),
+                ArticleHtml = File.ReadAllText("html/templates/24h-article.html"),
                 Html = File.ReadAllText("html/portals/24h.html");
     }
 
     public static class Index
     {
         public static readonly string 
+                ArticleListHtml = "<div class=\"row\"><div class=\"ui segment\"><h1>@title@</h1><p>@lead@</p><a target=\"_blank\" href=\"@link@\"><button class=\"ui right floated primary button\">Otvori originalni članak</button></a><a href=\"/articles/24h&id=@article@\"><button class=\"ui right floated secondary button\">Pretpregledaj članak</button></a><br><br><br><br></div></div><br>",
+                ArticleHtml = File.ReadAllText("html/templates/index-article.html"),
                 Html = File.ReadAllText("html/portals/index.html").Replace("@articles@", "<i>Trenutno nedostupno</i>");
     }
 
     public static class Jutarnji
     {
-        public static readonly string 
+        public static readonly string
+                ArticleListHtml = "<div class=\"row\"><div class=\"ui segment\"><h1>@title@</h1><p>@lead@</p><a target=\"_blank\" href=\"@link@\"><button class=\"ui right floated primary button\">Otvori originalni članak</button></a><a href=\"/articles/24h&id=@article@\"><button class=\"ui right floated secondary button\">Pretpregledaj članak</button></a><br><br><br><br></div></div><br>",
+                ArticleHtml = File.ReadAllText("html/templates/jutarnji-article.html"),
                 Html = File.ReadAllText("html/portals/jutarnji.html").Replace("@articles@", "<i>Trenutno nedostupno</i>");
     }
 
     public static class Vecernji
     {
-        public static readonly string 
+        public static readonly string
+                ArticleListHtml = "<div class=\"row\"><div class=\"ui segment\"><h1>@title@</h1><p>@lead@</p><a target=\"_blank\" href=\"@link@\"><button class=\"ui right floated primary button\">Otvori originalni članak</button></a><a href=\"/articles/24h&id=@article@\"><button class=\"ui right floated secondary button\">Pretpregledaj članak</button></a><br><br><br><br></div></div><br>",
+                ArticleHtml = File.ReadAllText("html/templates/vecernji-article.html"),
                 Html = File.ReadAllText("html/portals/vecernji.html").Replace("@articles@", "<i>Trenutno nedostupno</i>");
     }
 
     public static class Dnevnik
     {
         public static readonly string
+                ArticleListHtml = "<div class=\"row\"><div class=\"ui segment\"><h1>@title@</h1><p>@lead@</p><a target=\"_blank\" href=\"@link@\"><button class=\"ui right floated primary button\">Otvori originalni članak</button></a><a href=\"/articles/24h&id=@article@\"><button class=\"ui right floated secondary button\">Pretpregledaj članak</button></a><br><br><br><br></div></div><br>",
+                ArticleHtml = File.ReadAllText("html/templates/dnevnik-article.html"),
                 Html = File.ReadAllText("html/portals/dnevnik.html").Replace("@articles@", "<i>Trenutno nedostupno</i>");
     }
 
     public static class Net
     {
         public static readonly string
+                ArticleListHtml = "<div class=\"row\"><div class=\"ui segment\"><h1>@title@</h1><p>@lead@</p><a target=\"_blank\" href=\"@link@\"><button class=\"ui right floated primary button\">Otvori originalni članak</button></a><a href=\"/articles/24h&id=@article@\"><button class=\"ui right floated secondary button\">Pretpregledaj članak</button></a><br><br><br><br></div></div><br>",
+                ArticleHtml = File.ReadAllText("html/templates/net-article.html"),
                 Html = File.ReadAllText("html/portals/net.html").Replace("@articles@", "<i>Trenutno nedostupno</i>");
     }
 }
