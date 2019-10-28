@@ -47,7 +47,7 @@ namespace Portals
                 if (!Program.IsScrapping24h)
                     Program._24h.ForEach(a =>
                     {
-                        var article = _24h.ArticleListHtml.Replace("@portal@", "https://www.24sata.hr/").Replace("@image@", Constants.ImageData.Replace("@base64@", Utilities.GetBase64ForImage("html/images/24h.png"))).Replace("@title@", a.Title).Replace("@lead@", a.Lead).Replace("@link@", a.Link).Replace("@article@", a.ID);
+                        var article = _24h.ArticleListHtml.Replace("@portal@", "https://www.24sata.hr/").Replace("@title@", a.Title).Replace("@lead@", a.Lead).Replace("@link@", a.Link).Replace("@article@", a.ID);
                         articles += article;
                     });
                 else

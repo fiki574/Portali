@@ -126,7 +126,6 @@ namespace Portals
                     parameters.Add(key, value);
                 }
 
-                
                 KeyValuePair<HttpHandler, HttpHandlerDelegate> pair;
                 string[] raw = context.Request.RawUrl.Split('&');
                 if (raw[0] == "/favicon.ico")

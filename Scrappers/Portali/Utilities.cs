@@ -88,7 +88,16 @@ namespace Portals
                             var i = link.Substring(link.LastIndexOf("/") + 1);
                             article.ID = i;
 
-                            var d = wc.DownloadString(link);
+                            var d = "";
+                            try
+                            {
+                                d = wc.DownloadString(link);
+                            }
+                            catch
+                            {
+                                Console.WriteLine("Couldn't download data from: " + link);
+                                return;
+                            }
 
                             try
                             {
@@ -181,7 +190,6 @@ namespace Portals
         {
             return null;
         }
-
 
         public static ThreadSafeList<Article> ScrapDnevnik()
         {
