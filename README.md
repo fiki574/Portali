@@ -1,8 +1,7 @@
 # Portali
-Live feed sa hrvatskih javnih news portala.
 
-Sva prava pripadaju originalnim autorima.
+Live feed sa hrvatskih javnih news portala
 
-Ova aplikacija ne koristi nikakav oblik trajnog prikupljanja niti pohranjivanja povjerljivih podataka ili autorskih djela.
+Sva prava pripadaju originalnim autorima
 
-Licenca: GNU GENERAL PUBLIC LICENSE
+Ova aplikacija ne koristi nikakav oblik trajnog prikupljanja niti pohranjivanja povjerljivih podataka ili autorskih djela
