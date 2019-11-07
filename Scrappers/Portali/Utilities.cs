@@ -26,7 +26,7 @@ namespace Portals
 {
     public static class Utilities
     {
-        public static string GetBase64ForImage(string path)
+        public static string GetBase64(string path)
         {
             try
             {
@@ -82,15 +82,13 @@ namespace Portals
                     {
                         using (var wc = new WebClient())
                         {
-                            var article = new Article();
-                            article.Link = link;
-
-                            var i = link.Substring(link.LastIndexOf("/") + 1);
-                            article.ID = i;
-
                             var d = "";
+                            var article = new Article();
                             try
                             {
+                                article.Link = link;
+                                var i = link.Substring(link.LastIndexOf("/") + 1);
+                                article.ID = i;
                                 d = wc.DownloadString(link);
                             }
                             catch

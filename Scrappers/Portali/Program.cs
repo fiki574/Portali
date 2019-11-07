@@ -116,7 +116,7 @@ namespace Portals
                 remove.ForEach(s => { _24h.Remove(a => a.ID == s); });
                 Console.WriteLine($"Filtering out {remove.Count(s => true)} articles that shouldn't be displayed");
                 remove.Clear();
-                _24h.ForEach(a => { File.WriteAllText("html/articles/24h/" + a.ID + ".html", a.ToHtml()); });
+                _24h.ForEach(a => { File.WriteAllText("html/articles/24h/" + a.ID + ".html", a.ToHtml("24h")); });
                 IsScrapping24h = false;
             }
             catch (Exception ex)

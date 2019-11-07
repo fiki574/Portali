@@ -29,6 +29,6 @@ namespace Portals
 
         public static readonly string 
             ImageData = "data:image/png;base64,@base64@", 
-            Homepage = File.ReadAllText("html/index.html").Replace("@base64@", Utilities.GetBase64ForImage("html/images/portali.png"));
+            Homepage = File.ReadAllText("html/index.html").Replace("@base64@", Utilities.GetBase64("html/images/portali.png"));
     }
 }

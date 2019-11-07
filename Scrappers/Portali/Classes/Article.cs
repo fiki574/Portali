@@ -22,14 +22,22 @@ namespace Portals
     {
         public string Link, ID, Title, Lead, Author, Time, Content;
 
-        public override string ToString()
+        public string ToHtml(string portal)
         {
-            return $"[ID: {ID} | Title: {Title} | Author: {Author}]";
-        }
-
-        public string ToHtml()
-        {
-            return _24h.ArticleHtml.Replace("@title@", Title).Replace("@lead@", Lead).Replace("@author@", Author).Replace("@time@", Time).Replace("@content@", Content).Replace("@link@", Link);
+            if (portal == "24h")
+                return _24h.ArticleHtml.Replace("@title@", Title).Replace("@lead@", Lead).Replace("@author@", Author).Replace("@time@", Time).Replace("@content@", Content).Replace("@link@", Link);
+            else if (portal == "index")
+                return Index.ArticleHtml;
+            else if (portal == "jutarnji")
+                return Jutarnji.ArticleHtml;
+            else if (portal == "vecernji")
+                return Vecernji.ArticleHtml;
+            else if (portal == "dnevnik")
+                return Dnevnik.ArticleHtml;
+            else if (portal == "net")
+                return Net.ArticleHtml;
+            else
+                return null; 
         }
 
         public bool IsValidArticle()

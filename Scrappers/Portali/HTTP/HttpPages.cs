@@ -25,7 +25,6 @@ namespace Portals
 {
     public partial class HttpServer
     {
-        
         [HttpHandler("/")]
         private static string HandleBlank(HttpServer server, HttpListenerRequest request, Dictionary<string, string> parameters)
         {
