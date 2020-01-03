@@ -30,15 +30,18 @@ namespace Portals
     {
         private delegate string HttpHandlerDelegate(HttpServer server, HttpListenerRequest request, Dictionary<string, string> parameters);
         private Dictionary<string, KeyValuePair<HttpHandler, HttpHandlerDelegate>> m_handlers = new Dictionary<string, KeyValuePair<HttpHandler, HttpHandlerDelegate>>();
-        private HttpListener m_listener;
+        private HttpListener Listener;
+        private int Visits;
+        private object VisitsLock = new object();
 
         public HttpServer(int port)
         {
             try
             {
                 MapHandlers();
-                m_listener = new HttpListener();
-                m_listener.Prefixes.Add("http://*:" + port + "/");
+                Listener = new HttpListener();
+                Listener.Prefixes.Add("http://*:" + port + "/");
+                Visits = 0;
             }
             catch (Exception ex)
             {
@@ -50,8 +53,8 @@ namespace Portals
         {
             try
             {
-                m_listener.Start();
-                m_listener.BeginGetContext(OnGetContext, null);
+                Listener.Start();
+                Listener.BeginGetContext(OnGetContext, null);
             }
             catch (Exception ex)
             {
@@ -63,13 +66,28 @@ namespace Portals
         {
             try
             {
-                m_listener.Close();
-                m_listener = null;
+                Listener.Close();
+                Listener = null;
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
             }
+        }
+
+        private void PrintVisits()
+        {
+            lock (VisitsLock)
+                Console.WriteLine($"Number of total visits since application startup: {Visits}");
+        }
+
+        private void IncreaseVisits()
+        {
+            lock (VisitsLock)
+                Visits += 1;
+
+            if (Visits % 5 == 0)
+                PrintVisits();
         }
 
         private void MapHandlers()
@@ -99,12 +117,12 @@ namespace Portals
         {
             try
             {
-                var context = m_listener.EndGetContext(result);
+                var context = Listener.EndGetContext(result);
                 ThreadPool.QueueUserWorkItem(HandleRequest, context);
             }
             finally
             {
-                m_listener.BeginGetContext(OnGetContext, null);
+                Listener.BeginGetContext(OnGetContext, null);
             }
         }
 
@@ -113,6 +131,7 @@ namespace Portals
             HttpListenerContext context = (HttpListenerContext)oContext;
             try
             {
+                IncreaseVisits();
                 Dictionary<string, string> parameters = new Dictionary<string, string>();
                 string[] tokens = context.Request.RawUrl.Split('&');
                 foreach (var token in tokens)
@@ -126,12 +145,11 @@ namespace Portals
                     parameters.Add(key, value);
                 }
 
-                KeyValuePair<HttpHandler, HttpHandlerDelegate> pair;
                 string[] raw = context.Request.RawUrl.Split('&');
                 if (raw[0] == "/favicon.ico")
                     return;
 
-                if (!m_handlers.TryGetValue(raw[0], out pair))
+                if (!m_handlers.TryGetValue(raw[0], out KeyValuePair<HttpHandler, HttpHandlerDelegate> pair))
                     return;
 
                 var result = pair.Value(this, context.Request, parameters);
