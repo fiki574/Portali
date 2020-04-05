@@ -75,19 +75,15 @@ namespace Portals
             }
         }
 
-        private void PrintVisits()
-        {
-            lock (VisitsLock)
-                Console.WriteLine($"Number of total visits since application startup: {Visits}");
-        }
-
         private void IncreaseVisits()
         {
             lock (VisitsLock)
                 Visits += 1;
+        }
 
-            if (Visits % 5 == 0)
-                PrintVisits();
+        private int GetVisits()
+        {
+            return Visits;
         }
 
         private void MapHandlers()

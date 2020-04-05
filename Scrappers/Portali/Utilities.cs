@@ -141,7 +141,7 @@ namespace Portals
                             try
                             {
                                 var c = d.Substring(d.IndexOf(_24h.ContentHtml) + _24h.ContentHtml.Length).Split(_24h.ContentEndHtml)[0].Trim();
-                                foreach(var regex in _24h.ContentRegex)
+                                foreach (var regex in _24h.ContentRegex)
                                 {
                                     MatchCollection matches = Regex.Matches(c, regex);
                                     var tmp = "";
@@ -176,7 +176,118 @@ namespace Portals
 
         public static ThreadSafeList<Article> ScrapIndex()
         {
-            return null;
+            ThreadSafeList<Article> articles = new ThreadSafeList<Article>();
+            try
+            {
+                string data = null;
+                using (var wc = new WebClient())
+                    data = wc.DownloadString(Index.ScrapUrl);
+
+                List<string> links = new List<string>();
+                MatchCollection matches = Regex.Matches(data, Index.ContentRegex[0]);
+                if (matches.Count > 0)
+                    foreach (Match match in matches)
+                    {
+                        var link = match.Groups[1].ToString().Trim();
+                        links.Add(link);
+                    }
+
+                List<string> titles = new List<string>();
+                matches = Regex.Matches(data, Index.ContentRegex[1]);
+                if (matches.Count > 0)
+                    foreach (Match match in matches)
+                    {
+                        var title = match.Groups[1].ToString().Trim();
+                        titles.Add(title);
+                    }
+
+                List<string> leads = new List<string>();
+                matches = Regex.Matches(data, Index.ContentRegex[2]);
+                if (matches.Count > 0)
+                    foreach (Match match in matches)
+                    {
+                        var lead = match.Groups[1].ToString().Trim();
+                        leads.Add(lead);
+                    }
+
+                if (links.Count == leads.Count && leads.Count == titles.Count)
+                {
+                    for (int i = 0; i < links.Count; i++)
+                    {
+                        var article = new Article();
+                        article.ID = links[i].Replace('/', '-').Substring("-vijesti-clanak-".Length).Replace(".aspx", "");
+                        article.Link = Index.BaseUrl + links[i];
+                        article.Title = titles[i];
+                        article.Lead = leads[i];
+                        articles.Add(article);
+                    }
+                }
+
+                for (int i = 0; i < articles.Length; i++)
+                {
+                    var article = articles[i];
+                    string adata = null;
+                    try
+                    {
+
+                        using (var wc = new WebClient())
+                            adata = wc.DownloadString(article.Link);
+                    }
+                    catch
+                    {
+                        Console.WriteLine("Couldn't download data from: " + article.Link);
+                        continue;
+                    }
+
+                    try
+                    {
+                        matches = Regex.Matches(adata, Index.ContentRegex[3]);
+                        if (matches.Count > 0)
+                            foreach (Match match in matches)
+                                article.Author = match.Groups[1].ToString().Trim();
+                    }
+                    catch
+                    {
+                        article.Author = "exception";
+                    }
+
+                    try
+                    {
+                        matches = Regex.Matches(adata, Index.ContentRegex[4]);
+                        if (matches.Count > 0)
+                            foreach (Match match in matches)
+                            {
+                                DateTime dt = DateTime.Parse(match.Groups[1].ToString().Trim());
+                                article.Time = dt.ToString();
+                            }
+                    }
+                    catch
+                    {
+                        article.Time = "exception";
+                    }
+
+                    try
+                    {
+                        matches = Regex.Matches(adata, Index.ContentRegex[5]);
+                        if (matches.Count > 0)
+                            foreach (Match match in matches)
+                            {
+                                var s = match.Groups[1].ToString().Trim();
+                                if (!s.Contains("<em>") && !s.Contains("</em>"))
+                                    article.Content += s + "<br><br>";
+                            }
+                    }
+                    catch
+                    {
+                        article.Content = "exception";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+            return articles;
         }
 
         public static ThreadSafeList<Article> ScrapJutarnji()

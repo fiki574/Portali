@@ -37,21 +37,23 @@ namespace Portals
             return Constants.Homepage;
         }
 
+        [HttpHandler("/visits")]
+        private static string HandleVisits(HttpServer server, HttpListenerRequest request, Dictionary<string, string> parameters)
+        {
+            return server.GetVisits().ToString();
+        }
+
         [HttpHandler("/portals/24h.html")]
         private static string Handle24h(HttpServer server, HttpListenerRequest request, Dictionary<string, string> parameters)
         {
             try
             {
                 var articles = "";
-                if (!Program.IsScrapping24h)
-                    Program._24h.ForEach(a =>
+                Program._24h.ForEach(a =>
                     {
                         var article = _24h.ArticleListHtml.Replace("@portal@", "https://www.24sata.hr/").Replace("@title@", a.Title).Replace("@lead@", a.Lead).Replace("@link@", a.Link).Replace("@article@", a.ID);
                         articles += article;
                     });
-                else
-                    return "Trenutno traje dohvaćanje članaka sa 24sata, ubrzo će biti dostupni. Osvježite ovu stranicu kroz maksimalno jednu minutu.";
-
                 return _24h.Html.Replace("@articles@", articles);
             }
             catch (Exception ex)
@@ -64,7 +66,13 @@ namespace Portals
         [HttpHandler("/portals/index.html")]
         private static string HandleIndex(HttpServer server, HttpListenerRequest request, Dictionary<string, string> parameters)
         {
-            return Index.Html;
+            var articles = "";
+            Program.Index.ForEach(a =>
+            {
+                var article = Index.ArticleListHtml.Replace("@portal@", "https://www.index.hr/").Replace("@title@", a.Title).Replace("@lead@", a.Lead).Replace("@link@", a.Link).Replace("@article@", a.ID);
+                articles += article;
+            });
+            return Index.Html.Replace("@articles@", articles);
         }
 
         [HttpHandler("/portals/jutarnji.html")]

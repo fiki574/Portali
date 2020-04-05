@@ -53,16 +53,28 @@ namespace Portals
 
     public static class Index
     {
-        public static readonly string 
-                ArticleListHtml = "<div class=\"row\"><div class=\"ui segment\"><h1>@title@</h1><p>@lead@</p><a target=\"_blank\" href=\"@link@\"><button class=\"ui right floated primary button\">Otvori originalni članak</button></a><a href=\"/articles/24h&id=@article@\"><button class=\"ui right floated secondary button\">Pretpregledaj članak</button></a><br><br><br><br></div></div><br>",
+        public static readonly string[] ContentRegex = new string[6]
+        {
+            "<a class=\"vijesti-text-hover scale-img-hover flex\" href=\"(.*?)\">",
+            "<h3 class=\"title\">(.*?)</h3>",
+            "<span class=\"summary\">(.*?)</span>",
+            "<span class=\"author\">(.*?)</span>",
+            "datetime=\"(.*?)\"",
+            "<p>(.*?)</p>"
+        };
+
+        public static readonly string
+                BaseUrl = "https://www.index.hr",
+                ScrapUrl = "https://www.index.hr/najnovije?kategorija=3",
+                ArticleListHtml = "<div class=\"row\"><div class=\"ui segment\"><h1>@title@</h1><p>@lead@</p><a target=\"_blank\" href=\"@link@\"><button class=\"ui right floated primary button\">Otvori originalni članak</button></a><a href=\"/articles/index&id=@article@\"><button class=\"ui right floated secondary button\">Pretpregledaj članak</button></a><br><br><br><br></div></div><br>",
                 ArticleHtml = File.ReadAllText("html/templates/index-article.html"),
-                Html = File.ReadAllText("html/portals/index.html").Replace("@articles@", "<i>Trenutno nedostupno</i>");
+                Html = File.ReadAllText("html/portals/index.html");
     }
 
     public static class Jutarnji
     {
         public static readonly string
-                ArticleListHtml = "<div class=\"row\"><div class=\"ui segment\"><h1>@title@</h1><p>@lead@</p><a target=\"_blank\" href=\"@link@\"><button class=\"ui right floated primary button\">Otvori originalni članak</button></a><a href=\"/articles/24h&id=@article@\"><button class=\"ui right floated secondary button\">Pretpregledaj članak</button></a><br><br><br><br></div></div><br>",
+                ArticleListHtml = "<div class=\"row\"><div class=\"ui segment\"><h1>@title@</h1><p>@lead@</p><a target=\"_blank\" href=\"@link@\"><button class=\"ui right floated primary button\">Otvori originalni članak</button></a><a href=\"/articles/jutarnji&id=@article@\"><button class=\"ui right floated secondary button\">Pretpregledaj članak</button></a><br><br><br><br></div></div><br>",
                 ArticleHtml = File.ReadAllText("html/templates/jutarnji-article.html"),
                 Html = File.ReadAllText("html/portals/jutarnji.html").Replace("@articles@", "<i>Trenutno nedostupno</i>");
     }
@@ -70,7 +82,7 @@ namespace Portals
     public static class Vecernji
     {
         public static readonly string
-                ArticleListHtml = "<div class=\"row\"><div class=\"ui segment\"><h1>@title@</h1><p>@lead@</p><a target=\"_blank\" href=\"@link@\"><button class=\"ui right floated primary button\">Otvori originalni članak</button></a><a href=\"/articles/24h&id=@article@\"><button class=\"ui right floated secondary button\">Pretpregledaj članak</button></a><br><br><br><br></div></div><br>",
+                ArticleListHtml = "<div class=\"row\"><div class=\"ui segment\"><h1>@title@</h1><p>@lead@</p><a target=\"_blank\" href=\"@link@\"><button class=\"ui right floated primary button\">Otvori originalni članak</button></a><a href=\"/articles/vecernji&id=@article@\"><button class=\"ui right floated secondary button\">Pretpregledaj članak</button></a><br><br><br><br></div></div><br>",
                 ArticleHtml = File.ReadAllText("html/templates/vecernji-article.html"),
                 Html = File.ReadAllText("html/portals/vecernji.html").Replace("@articles@", "<i>Trenutno nedostupno</i>");
     }
@@ -78,7 +90,7 @@ namespace Portals
     public static class Dnevnik
     {
         public static readonly string
-                ArticleListHtml = "<div class=\"row\"><div class=\"ui segment\"><h1>@title@</h1><p>@lead@</p><a target=\"_blank\" href=\"@link@\"><button class=\"ui right floated primary button\">Otvori originalni članak</button></a><a href=\"/articles/24h&id=@article@\"><button class=\"ui right floated secondary button\">Pretpregledaj članak</button></a><br><br><br><br></div></div><br>",
+                ArticleListHtml = "<div class=\"row\"><div class=\"ui segment\"><h1>@title@</h1><p>@lead@</p><a target=\"_blank\" href=\"@link@\"><button class=\"ui right floated primary button\">Otvori originalni članak</button></a><a href=\"/articles/dnevnik&id=@article@\"><button class=\"ui right floated secondary button\">Pretpregledaj članak</button></a><br><br><br><br></div></div><br>",
                 ArticleHtml = File.ReadAllText("html/templates/dnevnik-article.html"),
                 Html = File.ReadAllText("html/portals/dnevnik.html").Replace("@articles@", "<i>Trenutno nedostupno</i>");
     }
@@ -86,7 +98,7 @@ namespace Portals
     public static class Net
     {
         public static readonly string
-                ArticleListHtml = "<div class=\"row\"><div class=\"ui segment\"><h1>@title@</h1><p>@lead@</p><a target=\"_blank\" href=\"@link@\"><button class=\"ui right floated primary button\">Otvori originalni članak</button></a><a href=\"/articles/24h&id=@article@\"><button class=\"ui right floated secondary button\">Pretpregledaj članak</button></a><br><br><br><br></div></div><br>",
+                ArticleListHtml = "<div class=\"row\"><div class=\"ui segment\"><h1>@title@</h1><p>@lead@</p><a target=\"_blank\" href=\"@link@\"><button class=\"ui right floated primary button\">Otvori originalni članak</button></a><a href=\"/articles/net&id=@article@\"><button class=\"ui right floated secondary button\">Pretpregledaj članak</button></a><br><br><br><br></div></div><br>",
                 ArticleHtml = File.ReadAllText("html/templates/net-article.html"),
                 Html = File.ReadAllText("html/portals/net.html").Replace("@articles@", "<i>Trenutno nedostupno</i>");
     }
