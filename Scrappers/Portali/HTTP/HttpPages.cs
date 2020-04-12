@@ -59,20 +59,28 @@ namespace Portals
             catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
-                return "Greška: " + ex.ToString();
+                return "Greška";
             }
         }
 
         [HttpHandler("/portals/index.html")]
         private static string HandleIndex(HttpServer server, HttpListenerRequest request, Dictionary<string, string> parameters)
         {
-            var articles = "";
-            Program.Index.ForEach(a =>
+            try
             {
-                var article = Index.ArticleListHtml.Replace("@portal@", "https://www.index.hr/").Replace("@title@", a.Title).Replace("@lead@", a.Lead).Replace("@link@", a.Link).Replace("@article@", a.ID);
-                articles += article;
-            });
-            return Index.Html.Replace("@articles@", articles);
+                var articles = "";
+                Program.Index.ForEach(a =>
+                {
+                    var article = Index.ArticleListHtml.Replace("@portal@", "https://www.index.hr/").Replace("@title@", a.Title).Replace("@lead@", a.Lead).Replace("@link@", a.Link).Replace("@article@", a.ID);
+                    articles += article;
+                });
+                return Index.Html.Replace("@articles@", articles);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return "Greška";
+            }
         }
 
         [HttpHandler("/portals/jutarnji.html")]
@@ -114,7 +122,7 @@ namespace Portals
             catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
-                return "Greška: " + ex.ToString();
+                return "Greška";
             }
         }
 
@@ -133,7 +141,7 @@ namespace Portals
             catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
-                return "Greška: " + ex.ToString();
+                return "Greška";
             }
         }
 
@@ -152,7 +160,7 @@ namespace Portals
             catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
-                return "Greška: " + ex.ToString();
+                return "Greška";
             }
         }
 
@@ -171,7 +179,7 @@ namespace Portals
             catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
-                return "Greška: " + ex.ToString();
+                return "Greška";
             }
         }
 
@@ -190,7 +198,7 @@ namespace Portals
             catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
-                return "Greška: " + ex.ToString();
+                return "Greška";
             }
         }
 
@@ -209,7 +217,7 @@ namespace Portals
             catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
-                return "Greška: " + ex.ToString();
+                return "Greška";
             }
         }
     }

@@ -214,11 +214,13 @@ namespace Portals
                 {
                     for (int i = 0; i < links.Count; i++)
                     {
-                        var article = new Article();
-                        article.ID = links[i].Replace('/', '-').Substring("-vijesti-clanak-".Length).Replace(".aspx", "");
-                        article.Link = Index.BaseUrl + links[i];
-                        article.Title = titles[i];
-                        article.Lead = leads[i];
+                        var article = new Article
+                        {
+                            ID = links[i].Replace('/', '-').Substring("-vijesti-clanak-".Length).Replace(".aspx", ""),
+                            Link = Index.BaseUrl + links[i],
+                            Title = titles[i],
+                            Lead = leads[i]
+                        };
                         articles.Add(article);
                     }
                 }

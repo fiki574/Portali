@@ -105,9 +105,9 @@ namespace Portals
         {
             try
             {
+                Utilities.ClearDirectory("html/articles/24h");
                 _24h = Utilities.Scrap24h();
                 Console.WriteLine($"Scrapped 24sata.hr -> Total articles: {_24h.Count(a => true)}");
-                Utilities.ClearDirectory("html/articles/24h");
                 ThreadSafeList<string> remove = new ThreadSafeList<string>();
                 _24h.ForEach(a =>
                 {
@@ -115,10 +115,10 @@ namespace Portals
                     if (!a.ShouldBeDisplayed("24h"))
                         remove.Add(a.ID);
                 });
-                remove.ForEach(s => { _24h.Remove(a => a.ID == s); });
+                remove.ForEach(s => _24h.Remove(a => a.ID == s));
                 Console.WriteLine($"Filtering out {remove.Count(s => true)} articles that shouldn't be displayed");
                 remove.Clear();
-                _24h.ForEach(a => { File.WriteAllText("html/articles/24h/" + a.ID + ".html", a.ToHtml("24h")); });
+                _24h.ForEach(a => File.WriteAllText("html/articles/24h/" + a.ID + ".html", a.ToHtml("24h")));
             }
             catch (Exception ex)
             {
@@ -130,9 +130,9 @@ namespace Portals
         {
             try
             {
+                Utilities.ClearDirectory("html/articles/index");
                 Index = Utilities.ScrapIndex();
                 Console.WriteLine($"Scrapped index.hr -> Total articles: {Index.Count(a => true)}");
-                Utilities.ClearDirectory("html/articles/index");
                 ThreadSafeList<string> remove = new ThreadSafeList<string>();
                 Index.ForEach(a =>
                 {
@@ -140,10 +140,10 @@ namespace Portals
                     if (!a.ShouldBeDisplayed("index"))
                         remove.Add(a.ID);
                 });
-                remove.ForEach(s => { Index.Remove(a => a.ID == s); });
+                remove.ForEach(s => Index.Remove(a => a.ID == s));
                 Console.WriteLine($"Filtering out {remove.Count(s => true)} articles that shouldn't be displayed");
                 remove.Clear();
-                Index.ForEach(a => { File.WriteAllText("html/articles/index/" + a.ID + ".html", a.ToHtml("index")); });
+                Index.ForEach(a => File.WriteAllText("html/articles/index/" + a.ID + ".html", a.ToHtml("index")));
             }
             catch (Exception ex)
             {

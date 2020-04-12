@@ -42,7 +42,11 @@ namespace Portals
 
         public bool IsValidArticle()
         {
-            if (!Title.Equals("exception") && !Lead.Equals("exception") && !Author.Equals("exception") && !Time.Equals("exception") && !Content.Equals("exception"))
+            if (Title != null && !Title.Equals("exception") && 
+                Lead != null && !Lead.Equals("exception") && 
+                Author != null && !Author.Equals("exception") && 
+                Time != null && !Time.Equals("exception") && 
+                Content != null && !Content.Equals("exception"))
                 return true;
             else
                 return false;
@@ -53,19 +57,19 @@ namespace Portals
             if (IsValidArticle())
                 return;
 
-            if (Title.Equals("exception"))
+            if (Title == null || Title.Equals("exception"))
                 Title = "<i>nema naslova</i>";
 
-            if (Lead.Equals("exception"))
+            if (Lead == null || Lead.Equals("exception"))
                 Lead = "<i>nema podnaslova</i>";
 
-            if (Author.Equals("exception"))
+            if (Author == null || Author.Equals("exception"))
                 Author = "<i>nema autora</i>";
 
-            if (Time.Equals("exception"))
+            if (Time == null || Time.Equals("exception"))
                 Time = "<i>nema vremena objave</i>";
 
-            if (Content.Equals("exception"))
+            if (Content == null ||Content.Equals("exception"))
                 Content = "<i>nema sadržaja</i>";
         }
 
