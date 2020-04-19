@@ -1,6 +1,6 @@
 ﻿/*
     Live feed of Croatian public news portals
-    Copyright (C) 2019 Bruno Fištrek
+    Copyright (C) 2020 Bruno Fištrek
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -31,8 +31,6 @@ namespace Portals
         private delegate string HttpHandlerDelegate(HttpServer server, HttpListenerRequest request, Dictionary<string, string> parameters);
         private Dictionary<string, KeyValuePair<HttpHandler, HttpHandlerDelegate>> m_handlers = new Dictionary<string, KeyValuePair<HttpHandler, HttpHandlerDelegate>>();
         private HttpListener Listener;
-        private int Visits;
-        private object VisitsLock = new object();
 
         public HttpServer(int port)
         {
@@ -41,7 +39,6 @@ namespace Portals
                 MapHandlers();
                 Listener = new HttpListener();
                 Listener.Prefixes.Add("http://*:" + port + "/");
-                Visits = 0;
             }
             catch (Exception ex)
             {
@@ -73,17 +70,6 @@ namespace Portals
             {
                 Console.WriteLine(ex.ToString());
             }
-        }
-
-        private void IncreaseVisits()
-        {
-            lock (VisitsLock)
-                Visits += 1;
-        }
-
-        private int GetVisits()
-        {
-            return Visits;
         }
 
         private void MapHandlers()
@@ -127,7 +113,6 @@ namespace Portals
             HttpListenerContext context = (HttpListenerContext)oContext;
             try
             {
-                IncreaseVisits();
                 Dictionary<string, string> parameters = new Dictionary<string, string>();
                 string[] tokens = context.Request.RawUrl.Split('&');
                 foreach (var token in tokens)

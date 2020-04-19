@@ -1,6 +1,6 @@
 ﻿/*
     Live feed of Croatian public news portals
-    Copyright (C) 2019 Bruno Fištrek
+    Copyright (C) 2020 Bruno Fištrek
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -27,14 +27,18 @@ namespace Portals
         private static Thread[] Threads = null;
         private static HttpServer Server = null;
         private static bool IsRunning = false;
-        public static ThreadSafeList<Article> _24h = null, Index = null;
+        public static ThreadSafeList<Article> H24 = null, Index = null, Jutarnji = null, Vecernji = null, Dnevnik = null, Net = null;
 
         static void Main(string[] args)
         {
             try
             {
-                _24h = new ThreadSafeList<Article>();
+                H24 = new ThreadSafeList<Article>();
                 Index = new ThreadSafeList<Article>();
+                Jutarnji = new ThreadSafeList<Article>();
+                Vecernji = new ThreadSafeList<Article>();
+                Dnevnik = new ThreadSafeList<Article>();
+                Net = new ThreadSafeList<Article>();
 
                 Threads = new Thread[2];
                 IsRunning = true;
@@ -57,7 +61,6 @@ namespace Portals
             finally
             {
                 Console.WriteLine("IsRunning is false, stopping everything");
-                _24h = null;
                 Server.Stop();
                 Server = null;
                 Threads[0].Join();
@@ -74,8 +77,9 @@ namespace Portals
             {
                 while (IsRunning)
                 {
-                    Scrap24h();
-                    ScrapIndex();
+                    //Scrap24h();
+                    //ScrapIndex();
+                    ScrapJutarnji();
                     Thread.Sleep(Constants.ScrappersSleepInterval);
                 }
             }
@@ -106,19 +110,11 @@ namespace Portals
             try
             {
                 Utilities.ClearDirectory("html/articles/24h");
-                _24h = Utilities.Scrap24h();
-                Console.WriteLine($"Scrapped 24sata.hr -> Total articles: {_24h.Count(a => true)}");
-                ThreadSafeList<string> remove = new ThreadSafeList<string>();
-                _24h.ForEach(a =>
-                {
-                    a.ReplaceInvalidText();
-                    if (!a.ShouldBeDisplayed("24h"))
-                        remove.Add(a.ID);
-                });
-                remove.ForEach(s => _24h.Remove(a => a.ID == s));
-                Console.WriteLine($"Filtering out {remove.Count(s => true)} articles that shouldn't be displayed");
-                remove.Clear();
-                _24h.ForEach(a => File.WriteAllText("html/articles/24h/" + a.ID + ".html", a.ToHtml("24h")));
+                H24.Clear();
+                H24 = HapScrap.ScrapPortal(PortalType.H24);
+                Console.WriteLine($"Scrapped 24sata.hr -> Total articles: {H24.Count(a => true)}");
+                Utilities.UpdateList(H24, PortalType.H24);
+                H24.ForEach(a => File.WriteAllText("html/articles/24h/" + a.ID + ".html", a.ToHtml(PortalType.H24)));
             }
             catch (Exception ex)
             {
@@ -131,19 +127,28 @@ namespace Portals
             try
             {
                 Utilities.ClearDirectory("html/articles/index");
-                Index = Utilities.ScrapIndex();
+                Index.Clear();
+                Index = HapScrap.ScrapPortal(PortalType.Index);
                 Console.WriteLine($"Scrapped index.hr -> Total articles: {Index.Count(a => true)}");
-                ThreadSafeList<string> remove = new ThreadSafeList<string>();
-                Index.ForEach(a =>
-                {
-                    a.ReplaceInvalidText();
-                    if (!a.ShouldBeDisplayed("index"))
-                        remove.Add(a.ID);
-                });
-                remove.ForEach(s => Index.Remove(a => a.ID == s));
-                Console.WriteLine($"Filtering out {remove.Count(s => true)} articles that shouldn't be displayed");
-                remove.Clear();
-                Index.ForEach(a => File.WriteAllText("html/articles/index/" + a.ID + ".html", a.ToHtml("index")));
+                Utilities.UpdateList(Index, PortalType.Index);
+                Index.ForEach(a => File.WriteAllText("html/articles/index/" + a.ID + ".html", a.ToHtml(PortalType.Index)));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+        }
+
+        static void ScrapJutarnji()
+        {
+            try
+            {
+                Utilities.ClearDirectory("html/articles/jutarnji");
+                Jutarnji.Clear();
+                Jutarnji = HapScrap.ScrapPortal(PortalType.Jutarnji);
+                Console.WriteLine($"Scrapped jutarnji.hr -> Total articles: {Jutarnji.Count(a => true)}");
+                Utilities.UpdateList(Jutarnji, PortalType.Jutarnji);
+                Jutarnji.ForEach(a => File.WriteAllText("html/articles/jutarnji/" + a.ID + ".html", a.ToHtml(PortalType.Jutarnji)));
             }
             catch (Exception ex)
             {

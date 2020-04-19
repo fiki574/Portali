@@ -1,6 +1,6 @@
 ﻿/*
     Live feed of Croatian public news portals
-    Copyright (C) 2019 Bruno Fištrek
+    Copyright (C) 2020 Bruno Fištrek
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -22,19 +22,19 @@ namespace Portals
     {
         public string Link, ID, Title, Lead, Author, Time, Content;
 
-        public string ToHtml(string portal)
+        public string ToHtml(PortalType type)
         {
-            if (portal == "24h")
-                return _24h.ArticleHtml.Replace("@title@", Title).Replace("@lead@", Lead).Replace("@author@", Author).Replace("@time@", Time).Replace("@content@", Content).Replace("@link@", Link);
-            else if (portal == "index")
+            if (type == PortalType.H24)
+                return H24.ArticleHtml.Replace("@title@", Title).Replace("@lead@", Lead).Replace("@author@", Author).Replace("@time@", Time).Replace("@content@", Content).Replace("@link@", Link);
+            else if (type == PortalType.Index)
                 return Index.ArticleHtml.Replace("@title@", Title).Replace("@lead@", Lead).Replace("@author@", Author).Replace("@time@", Time).Replace("@content@", Content).Replace("@link@", Link);
-            else if (portal == "jutarnji")
-                return Jutarnji.ArticleHtml;
-            else if (portal == "vecernji")
+            else if (type == PortalType.Jutarnji)
+                return Jutarnji.ArticleHtml.Replace("@title@", Title).Replace("@lead@", Lead).Replace("@author@", Author).Replace("@time@", Time).Replace("@content@", Content).Replace("@link@", Link);
+            else if (type == PortalType.Vecernji)
                 return Vecernji.ArticleHtml;
-            else if (portal == "dnevnik")
+            else if (type == PortalType.Dnevnik)
                 return Dnevnik.ArticleHtml;
-            else if (portal == "net")
+            else if (type == PortalType.Net)
                 return Net.ArticleHtml;
             else
                 return null; 
@@ -73,9 +73,9 @@ namespace Portals
                 Content = "<i>nema sadržaja</i>";
         }
 
-        public bool ShouldBeDisplayed(string portal)
+        public bool ShouldBeDisplayed(PortalType type)
         {
-            if (portal == "24h")
+            if (type == PortalType.H24)
             {
                 if (Title.ToLowerInvariant().Contains("igraj i osvoji") || Title.ToLowerInvariant().Contains("osvojite") || Title.ToLowerInvariant().Contains("kupon") || Title.ToLowerInvariant().Contains("prijavi se"))
                     return false;
@@ -87,7 +87,17 @@ namespace Portals
                     return false;
 
             }
+            else if (type == PortalType.Jutarnji)
+            {
+                if (ID.Contains("https:--") || ID.Contains("-vijesti-zagreb"))
+                    return false;
+            }
             return true;
+        }
+
+        public override string ToString()
+        {
+            return $"[{ID} | {Link}]";
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿/*
     Live feed of Croatian public news portals
-    Copyright (C) 2019 Bruno Fištrek
+    Copyright (C) 2020 Bruno Fištrek
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@ using System.IO;
 
 namespace Portals
 {
-    public static class _24h
+    public static class H24
     {
         public static readonly string[] URLs = new string[3]
         {
@@ -53,16 +53,6 @@ namespace Portals
 
     public static class Index
     {
-        public static readonly string[] ContentRegex = new string[6]
-        {
-            "<a class=\"vijesti-text-hover scale-img-hover flex\" href=\"(.*?)\">",
-            "<h3 class=\"title\">(.*?)</h3>",
-            "<span class=\"summary\">(.*?)</span>",
-            "<span class=\"author\">(.*?)</span>",
-            "datetime=\"(.*?)\"",
-            "<p>(.*?)</p>"
-        };
-
         public static readonly string
                 BaseUrl = "https://www.index.hr",
                 ScrapUrl = "https://www.index.hr/najnovije?kategorija=3",
@@ -74,9 +64,13 @@ namespace Portals
     public static class Jutarnji
     {
         public static readonly string
+                BaseUrl = "https://www.jutarnji.hr/vijesti/hrvatska",
+                ScrapUrl1 = "https://www.jutarnji.hr/vijesti/hrvatska/?page=1",
+                ScrapUrl2 = "https://www.jutarnji.hr/vijesti/hrvatska/?page=2",
+                ScrapUrl3 = "https://www.jutarnji.hr/vijesti/hrvatska/?page=3",
                 ArticleListHtml = "<div class=\"row\"><div class=\"ui segment\"><h1>@title@</h1><p>@lead@</p><a target=\"_blank\" href=\"@link@\"><button class=\"ui right floated primary button\">Otvori originalni članak</button></a><a href=\"/articles/jutarnji&id=@article@\"><button class=\"ui right floated secondary button\">Pretpregledaj članak</button></a><br><br><br><br></div></div><br>",
                 ArticleHtml = File.ReadAllText("html/templates/jutarnji-article.html"),
-                Html = File.ReadAllText("html/portals/jutarnji.html").Replace("@articles@", "<i>Trenutno nedostupno</i>");
+                Html = File.ReadAllText("html/portals/jutarnji.html");
     }
 
     public static class Vecernji

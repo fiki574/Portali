@@ -1,6 +1,6 @@
 ﻿/*
     Live feed of Croatian public news portals
-    Copyright (C) 2019 Bruno Fištrek
+    Copyright (C) 2020 Bruno Fištrek
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -37,24 +37,18 @@ namespace Portals
             return Constants.Homepage;
         }
 
-        [HttpHandler("/visits")]
-        private static string HandleVisits(HttpServer server, HttpListenerRequest request, Dictionary<string, string> parameters)
-        {
-            return server.GetVisits().ToString();
-        }
-
         [HttpHandler("/portals/24h.html")]
         private static string Handle24h(HttpServer server, HttpListenerRequest request, Dictionary<string, string> parameters)
         {
             try
             {
                 var articles = "";
-                Program._24h.ForEach(a =>
-                    {
-                        var article = _24h.ArticleListHtml.Replace("@portal@", "https://www.24sata.hr/").Replace("@title@", a.Title).Replace("@lead@", a.Lead).Replace("@link@", a.Link).Replace("@article@", a.ID);
-                        articles += article;
-                    });
-                return _24h.Html.Replace("@articles@", articles);
+                Program.H24.ForEach(a =>
+                {
+                    var article = H24.ArticleListHtml.Replace("@portal@", "https://www.24sata.hr/").Replace("@title@", a.Title).Replace("@lead@", a.Lead).Replace("@link@", a.Link).Replace("@article@", a.ID);
+                    articles += article;
+                });
+                return H24.Html.Replace("@articles@", articles);
             }
             catch (Exception ex)
             {
@@ -86,7 +80,21 @@ namespace Portals
         [HttpHandler("/portals/jutarnji.html")]
         private static string HandleJutarnji(HttpServer server, HttpListenerRequest request, Dictionary<string, string> parameters)
         {
-            return Jutarnji.Html;
+            try
+            {
+                var articles = "";
+                Program.Jutarnji.ForEach(a =>
+                {
+                    var article = Jutarnji.ArticleListHtml.Replace("@portal@", "https://www.jutarnji.hr/").Replace("@title@", a.Title).Replace("@lead@", a.Lead).Replace("@link@", a.Link).Replace("@article@", a.ID);
+                    articles += article;
+                });
+                return Jutarnji.Html.Replace("@articles@", articles);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return "Greška";
+            }
         }
 
         [HttpHandler("/portals/vecernji.html")]

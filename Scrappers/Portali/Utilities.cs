@@ -1,6 +1,6 @@
 ﻿/*
     Live feed of Croatian public news portals
-    Copyright (C) 2019 Bruno Fištrek
+    Copyright (C) 2020 Bruno Fištrek
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -56,6 +56,19 @@ namespace Portals
             }
         }
 
+        public static void UpdateList(ThreadSafeList<Article> articles, PortalType type)
+        {
+            ThreadSafeList<string> remove = new ThreadSafeList<string>();
+            articles.ForEach(a =>
+            {
+                a.ReplaceInvalidText();
+                if (!a.ShouldBeDisplayed(type))
+                    remove.Add(a.ID);
+            });
+            remove.ForEach(s => articles.Remove(a => a.ID == s));
+            Console.WriteLine($"Filtering out {remove.Count(s => true)} articles that shouldn't be displayed");
+        }
+
         public static ThreadSafeList<Article> Scrap24h()
         {
             string[] datas = new string[3] { "", "", "" };
@@ -66,19 +79,19 @@ namespace Portals
                 using (var wc = new WebClient())
                 {
                     int count = 0;
-                    foreach (var url in _24h.URLs)
+                    foreach (var url in H24.URLs)
                         datas[count++] = wc.DownloadString(url);
                 }
 
                 foreach (var data in datas)
                     foreach (var lnk in data.Split(new[] { "<link>" }, StringSplitOptions.None))
                         foreach (var sublink in lnk.Split(new[] { "</link>" }, StringSplitOptions.None))
-                            if (sublink.StartsWith("http") && !sublink.Equals(_24h.BaseUrl1) && !sublink.Equals(_24h.BaseUrl2))
+                            if (sublink.StartsWith("http") && !sublink.Equals(H24.BaseUrl1) && !sublink.Equals(H24.BaseUrl2))
                                 links.Add(sublink);
 
                 links.ForEach(link =>
                 {
-                    if (!link.Equals(_24h.BaseUrl1) && !link.Equals(_24h.BaseUrl2) && link.Contains(_24h.BaseUrl1))
+                    if (!link.Equals(H24.BaseUrl1) && !link.Equals(H24.BaseUrl2) && link.Contains(H24.BaseUrl1))
                     {
                         using (var wc = new WebClient())
                         {
@@ -99,7 +112,7 @@ namespace Portals
 
                             try
                             {
-                                var t = d.Substring(d.IndexOf(_24h.TitleHtml) + _24h.TitleHtml.Length).Split("</h1>")[0].Replace("&#39;", "'").Replace("&quot;", "\"").Trim();
+                                var t = d.Substring(d.IndexOf(H24.TitleHtml) + H24.TitleHtml.Length).Split("</h1>")[0].Replace("&#39;", "'").Replace("&quot;", "\"").Trim();
                                 article.Title = t;
                             }
                             catch
@@ -109,7 +122,7 @@ namespace Portals
 
                             try
                             {
-                                var l = d.Substring(d.IndexOf(_24h.LeadHtml) + _24h.LeadHtml.Length).Split("</h2>")[0].Replace("&#39;", "'").Replace("&quot;", "\"").Trim();
+                                var l = d.Substring(d.IndexOf(H24.LeadHtml) + H24.LeadHtml.Length).Split("</h2>")[0].Replace("&#39;", "'").Replace("&quot;", "\"").Trim();
                                 article.Lead = l;
                             }
                             catch
@@ -119,7 +132,7 @@ namespace Portals
 
                             try
                             {
-                                var a = d.Substring(d.IndexOf(_24h.AuthorHtml)).Split("</span>")[1].Replace("<span>", "").Trim();
+                                var a = d.Substring(d.IndexOf(H24.AuthorHtml)).Split("</span>")[1].Replace("<span>", "").Trim();
                                 article.Author = a;
                             }
                             catch
@@ -129,7 +142,7 @@ namespace Portals
 
                             try
                             {
-                                var t = d.Substring(d.IndexOf(_24h.TimeHtml) + _24h.TimeHtml.Length).Split("\"")[0].Trim();
+                                var t = d.Substring(d.IndexOf(H24.TimeHtml) + H24.TimeHtml.Length).Split("\"")[0].Trim();
                                 DateTime dt = DateTime.Parse(t);
                                 article.Time = dt.ToString();
                             }
@@ -140,8 +153,8 @@ namespace Portals
 
                             try
                             {
-                                var c = d.Substring(d.IndexOf(_24h.ContentHtml) + _24h.ContentHtml.Length).Split(_24h.ContentEndHtml)[0].Trim();
-                                foreach (var regex in _24h.ContentRegex)
+                                var c = d.Substring(d.IndexOf(H24.ContentHtml) + H24.ContentHtml.Length).Split(H24.ContentEndHtml)[0].Trim();
+                                foreach (var regex in H24.ContentRegex)
                                 {
                                     MatchCollection matches = Regex.Matches(c, regex);
                                     var tmp = "";
@@ -172,144 +185,6 @@ namespace Portals
                 Console.WriteLine(ex.ToString());
             }
             return articles;
-        }
-
-        public static ThreadSafeList<Article> ScrapIndex()
-        {
-            ThreadSafeList<Article> articles = new ThreadSafeList<Article>();
-            try
-            {
-                string data = null;
-                using (var wc = new WebClient())
-                    data = wc.DownloadString(Index.ScrapUrl);
-
-                List<string> links = new List<string>();
-                MatchCollection matches = Regex.Matches(data, Index.ContentRegex[0]);
-                if (matches.Count > 0)
-                    foreach (Match match in matches)
-                    {
-                        var link = match.Groups[1].ToString().Trim();
-                        links.Add(link);
-                    }
-
-                List<string> titles = new List<string>();
-                matches = Regex.Matches(data, Index.ContentRegex[1]);
-                if (matches.Count > 0)
-                    foreach (Match match in matches)
-                    {
-                        var title = match.Groups[1].ToString().Trim();
-                        titles.Add(title);
-                    }
-
-                List<string> leads = new List<string>();
-                matches = Regex.Matches(data, Index.ContentRegex[2]);
-                if (matches.Count > 0)
-                    foreach (Match match in matches)
-                    {
-                        var lead = match.Groups[1].ToString().Trim();
-                        leads.Add(lead);
-                    }
-
-                if (links.Count == leads.Count && leads.Count == titles.Count)
-                {
-                    for (int i = 0; i < links.Count; i++)
-                    {
-                        var article = new Article
-                        {
-                            ID = links[i].Replace('/', '-').Substring("-vijesti-clanak-".Length).Replace(".aspx", ""),
-                            Link = Index.BaseUrl + links[i],
-                            Title = titles[i],
-                            Lead = leads[i]
-                        };
-                        articles.Add(article);
-                    }
-                }
-
-                for (int i = 0; i < articles.Length; i++)
-                {
-                    var article = articles[i];
-                    string adata = null;
-                    try
-                    {
-
-                        using (var wc = new WebClient())
-                            adata = wc.DownloadString(article.Link);
-                    }
-                    catch
-                    {
-                        Console.WriteLine("Couldn't download data from: " + article.Link);
-                        continue;
-                    }
-
-                    try
-                    {
-                        matches = Regex.Matches(adata, Index.ContentRegex[3]);
-                        if (matches.Count > 0)
-                            foreach (Match match in matches)
-                                article.Author = match.Groups[1].ToString().Trim();
-                    }
-                    catch
-                    {
-                        article.Author = "exception";
-                    }
-
-                    try
-                    {
-                        matches = Regex.Matches(adata, Index.ContentRegex[4]);
-                        if (matches.Count > 0)
-                            foreach (Match match in matches)
-                            {
-                                DateTime dt = DateTime.Parse(match.Groups[1].ToString().Trim());
-                                article.Time = dt.ToString();
-                            }
-                    }
-                    catch
-                    {
-                        article.Time = "exception";
-                    }
-
-                    try
-                    {
-                        matches = Regex.Matches(adata, Index.ContentRegex[5]);
-                        if (matches.Count > 0)
-                            foreach (Match match in matches)
-                            {
-                                var s = match.Groups[1].ToString().Trim();
-                                if (!s.Contains("<em>") && !s.Contains("</em>"))
-                                    article.Content += s + "<br><br>";
-                            }
-                    }
-                    catch
-                    {
-                        article.Content = "exception";
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.ToString());
-            }
-            return articles;
-        }
-
-        public static ThreadSafeList<Article> ScrapJutarnji()
-        {
-            return null;
-        }
-
-        public static ThreadSafeList<Article> ScrapVecernji()
-        {
-            return null;
-        }
-
-        public static ThreadSafeList<Article> ScrapDnevnik()
-        {
-            return null;
-        }
-
-        public static ThreadSafeList<Article> ScrapNet()
-        {
-            return null;
         }
     }
 }
