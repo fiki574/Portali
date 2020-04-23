@@ -320,7 +320,7 @@ namespace Portals
                             foreach (var p in section_ps)
                             {
                                 var s = p.InnerText;
-                                if (!string.IsNullOrEmpty(s.Trim()) && !s.Contains("VIDEO") && !s.Contains("PROMO") && !s.Contains(article.Lead) && !s.Contains(article.Time) && !s.Contains("Copyright © HANZA MEDIA d.o.o. Sva prava pridržana.") && !s.Contains("iframe"))
+                                if (!p.GetClasses().Contains("overline") && !string.IsNullOrEmpty(s.Trim()) && !s.Contains("VIDEO") && !s.Contains("PROMO") && !s.Contains(article.Lead) && !s.Contains(article.Time) && !s.Contains("Copyright © HANZA MEDIA d.o.o. Sva prava pridržana.") && !s.Contains("iframe"))
                                     content += s + "<br><br>";
                             }
                         }
