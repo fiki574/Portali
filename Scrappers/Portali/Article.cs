@@ -1,6 +1,6 @@
 ﻿/*
     Live feed of Croatian public news portals
-    Copyright (C) 2020 Bruno Fištrek
+    Copyright (C) 2020/2021 Bruno Fištrek
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -31,11 +31,9 @@ namespace Portals
             else if (type == PortalType.Jutarnji)
                 return Jutarnji.ArticleHtml.Replace("@title@", Title).Replace("@lead@", Lead).Replace("@author@", Author).Replace("@time@", Time).Replace("@content@", Content).Replace("@link@", Link);
             else if (type == PortalType.Vecernji)
-                return Vecernji.ArticleHtml;
-            else if (type == PortalType.Dnevnik)
-                return Dnevnik.ArticleHtml;
+                return Vecernji.ArticleHtml.Replace("@title@", Title).Replace("@lead@", Lead).Replace("@author@", Author).Replace("@time@", Time).Replace("@content@", Content).Replace("@link@", Link);
             else if (type == PortalType.Net)
-                return Net.ArticleHtml;
+                return Net.ArticleHtml.Replace("@title@", Title).Replace("@lead@", Lead).Replace("@author@", Author).Replace("@time@", Time).Replace("@content@", Content).Replace("@link@", Link);
             else
                 return null; 
         }
@@ -85,11 +83,15 @@ namespace Portals
 
                 if (Content.ToLowerInvariant().Contains("pravila korištenja osobnih podataka") || Content.ToLowerInvariant().Contains("pravila privatnosti") || Content.ToLowerInvariant().Contains("prijavi se"))
                     return false;
-
             }
             else if (type == PortalType.Jutarnji)
             {
-                if (ID.Contains("https:--") || ID.Contains("-vijesti-zagreb"))
+                if (ID.ToLowerInvariant().Contains("https:--") || ID.ToLowerInvariant().Contains("-vijesti-zagreb"))
+                    return false;
+            }
+            else if (type == PortalType.Vecernji)
+            {
+                if (Author.ToLowerInvariant().Contains("pr članak"))
                     return false;
             }
             return true;

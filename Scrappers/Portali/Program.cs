@@ -1,6 +1,6 @@
 ﻿/*
     Live feed of Croatian public news portals
-    Copyright (C) 2020 Bruno Fištrek
+    Copyright (C) 2020/2021 Bruno Fištrek
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 using System;
 using System.IO;
 using System.Threading;
+using System.Diagnostics;
 
 namespace Portals
 {
@@ -27,7 +28,7 @@ namespace Portals
         private static Thread[] Threads = null;
         private static HttpServer Server = null;
         private static bool IsRunning = false;
-        public static ThreadSafeList<Article> H24 = null, Index = null, Jutarnji = null, Vecernji = null, Dnevnik = null, Net = null;
+        public static ThreadSafeList<Article> H24 = null, Index = null, Jutarnji = null, Vecernji = null, Net = null;
 
         static void Main(string[] args)
         {
@@ -37,7 +38,6 @@ namespace Portals
                 Index = new ThreadSafeList<Article>();
                 Jutarnji = new ThreadSafeList<Article>();
                 Vecernji = new ThreadSafeList<Article>();
-                Dnevnik = new ThreadSafeList<Article>();
                 Net = new ThreadSafeList<Article>();
 
                 Threads = new Thread[2];
@@ -77,9 +77,21 @@ namespace Portals
             {
                 while (IsRunning)
                 {
-                    //Scrap24h();
-                    //ScrapIndex();
+                    Stopwatch sw = new Stopwatch();
+                    sw.Start();
+
+                    Scrap24h();
+                    ScrapIndex();
                     ScrapJutarnji();
+                    ScrapVecernji();
+                    ScrapNet();
+
+                    sw.Stop();
+                    var ts = sw.Elapsed;
+                    var time = ts.ToString("mm\\:ss\\.ff");
+                    var count = H24.Count(a => true) + Index.Count(a => true) + Jutarnji.Count(a => true) + Vecernji.Count(a => true) + Net.Count(a => true);
+
+                    Console.WriteLine($"Elapsed time: {time} | Total articles: {count}");
                     Thread.Sleep(Constants.ScrappersSleepInterval);
                 }
             }
@@ -149,6 +161,40 @@ namespace Portals
                 Console.WriteLine($"Scrapped jutarnji.hr -> Total articles: {Jutarnji.Count(a => true)}");
                 Utilities.UpdateList(Jutarnji, PortalType.Jutarnji);
                 Jutarnji.ForEach(a => File.WriteAllText("html/articles/jutarnji/" + a.ID + ".html", a.ToHtml(PortalType.Jutarnji)));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+        }
+
+        static void ScrapVecernji()
+        {
+            try
+            {
+                Utilities.ClearDirectory("html/articles/vecernji");
+                Vecernji.Clear();
+                Vecernji = HapScrap.ScrapPortal(PortalType.Vecernji);
+                Console.WriteLine($"Scrapped vecernji.hr -> Total articles: {Vecernji.Count(a => true)}");
+                Utilities.UpdateList(Vecernji, PortalType.Vecernji);
+                Vecernji.ForEach(a => File.WriteAllText("html/articles/vecernji/" + a.ID + ".html", a.ToHtml(PortalType.Vecernji)));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+        }
+
+        static void ScrapNet()
+        {
+            try
+            {
+                Utilities.ClearDirectory("html/articles/net");
+                Net.Clear();
+                Net = HapScrap.ScrapPortal(PortalType.Net);
+                Console.WriteLine($"Scrapped net.hr -> Total articles: {Net.Count(a => true)}");
+                Utilities.UpdateList(Net, PortalType.Net);
+                Net.ForEach(a => File.WriteAllText("html/articles/net/" + a.ID + ".html", a.ToHtml(PortalType.Net)));
             }
             catch (Exception ex)
             {

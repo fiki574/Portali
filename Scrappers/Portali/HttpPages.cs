@@ -1,6 +1,6 @@
 ﻿/*
     Live feed of Croatian public news portals
-    Copyright (C) 2020 Bruno Fištrek
+    Copyright (C) 2020/2021 Bruno Fištrek
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -45,7 +45,7 @@ namespace Portals
                 var articles = "";
                 Program.H24.ForEach(a =>
                 {
-                    var article = H24.ArticleListHtml.Replace("@portal@", "https://www.24sata.hr/").Replace("@title@", a.Title).Replace("@lead@", a.Lead).Replace("@link@", a.Link).Replace("@article@", a.ID);
+                    var article = H24.ArticleListHtml.Replace("@title@", a.Title).Replace("@lead@", a.Lead).Replace("@link@", a.Link).Replace("@article@", a.ID);
                     articles += article;
                 });
                 return H24.Html.Replace("@articles@", articles);
@@ -65,7 +65,7 @@ namespace Portals
                 var articles = "";
                 Program.Index.ForEach(a =>
                 {
-                    var article = Index.ArticleListHtml.Replace("@portal@", "https://www.index.hr/").Replace("@title@", a.Title).Replace("@lead@", a.Lead).Replace("@link@", a.Link).Replace("@article@", a.ID);
+                    var article = Index.ArticleListHtml.Replace("@title@", a.Title).Replace("@lead@", a.Lead).Replace("@link@", a.Link).Replace("@article@", a.ID);
                     articles += article;
                 });
                 return Index.Html.Replace("@articles@", articles);
@@ -85,7 +85,7 @@ namespace Portals
                 var articles = "";
                 Program.Jutarnji.ForEach(a =>
                 {
-                    var article = Jutarnji.ArticleListHtml.Replace("@portal@", "https://www.jutarnji.hr/").Replace("@title@", a.Title).Replace("@lead@", a.Lead).Replace("@link@", a.Link).Replace("@article@", a.ID);
+                    var article = Jutarnji.ArticleListHtml.Replace("@title@", a.Title).Replace("@lead@", a.Lead).Replace("@link@", a.Link).Replace("@article@", a.ID);
                     articles += article;
                 });
                 return Jutarnji.Html.Replace("@articles@", articles);
@@ -100,19 +100,41 @@ namespace Portals
         [HttpHandler("/portals/vecernji.html")]
         private static string HandleVecernji(HttpServer server, HttpListenerRequest request, Dictionary<string, string> parameters)
         {
-            return Vecernji.Html;
-        }
-
-        [HttpHandler("/portals/dnevnik.html")]
-        private static string HandleDnevnik(HttpServer server, HttpListenerRequest request, Dictionary<string, string> parameters)
-        {
-            return Dnevnik.Html;
+            try
+            {
+                var articles = "";
+                Program.Vecernji.ForEach(a =>
+                {
+                    var article = Vecernji.ArticleListHtml.Replace("@title@", a.Title).Replace("@lead@", a.Lead).Replace("@link@", a.Link).Replace("@article@", a.ID);
+                    articles += article;
+                });
+                return Vecernji.Html.Replace("@articles@", articles);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return "Greška";
+            }
         }
 
         [HttpHandler("/portals/net.html")]
         private static string HandleNet(HttpServer server, HttpListenerRequest request, Dictionary<string, string> parameters)
         {
-            return Net.Html;
+            try
+            {
+                var articles = "";
+                Program.Net.ForEach(a =>
+                {
+                    var article = Net.ArticleListHtml.Replace("@title@", a.Title).Replace("@lead@", a.Lead).Replace("@link@", a.Link).Replace("@article@", a.ID);
+                    articles += article;
+                });
+                return Net.Html.Replace("@articles@", articles);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return "Greška";
+            }
         }
 
         [HttpHandler("/articles/24h")]
@@ -182,25 +204,6 @@ namespace Portals
 
                 var id = parameters["id"];
                 var html = File.ReadAllText($"html/articles/vecernji/{id}.html");
-                return html;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.ToString());
-                return "Greška";
-            }
-        }
-
-        [HttpHandler("/articles/dnevnik")]
-        private static string HandleDnevnikArticle(HttpServer server, HttpListenerRequest request, Dictionary<string, string> parameters)
-        {
-            try
-            {
-                if (!parameters.ContainsKey("id"))
-                    return "Neispravan zahtjev";
-
-                var id = parameters["id"];
-                var html = File.ReadAllText($"html/articles/dnevnik/{id}.html");
                 return html;
             }
             catch (Exception ex)

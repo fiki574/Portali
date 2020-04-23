@@ -1,6 +1,6 @@
 ﻿/*
     Live feed of Croatian public news portals
-    Copyright (C) 2020 Bruno Fištrek
+    Copyright (C) 2020/2021 Bruno Fištrek
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -24,11 +24,10 @@ namespace Portals
     {
         public static readonly int
             HttpServerPort = 5465,
-            ScrappersSleepInterval = 30 * 1000 * 60,
+            ScrappersSleepInterval = 60 * 1000 * 60,
             MainThreadSleepInterval = 5000;
 
         public static readonly string 
-            Image = "<img src=\"data:image/png;base64,@base64@\"/>", 
             Homepage = File.ReadAllText("html/index.html");
     }
 }

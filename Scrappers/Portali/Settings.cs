@@ -1,6 +1,6 @@
 ﻿/*
     Live feed of Croatian public news portals
-    Copyright (C) 2020 Bruno Fištrek
+    Copyright (C) 2020/2021/2021 Bruno Fištrek
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -40,9 +40,6 @@ namespace Portals
         public static readonly string
                 BaseUrl1 = "https://www.24sata.hr/",
                 BaseUrl2 = "https://www.24sata.hr/news",
-                TitleHtml = "<h1 class=\"article__title\">",
-                LeadHtml = "<h2 class=\"article__lead\">",
-                AuthorHtml = "<span class=\"article__author \">",
                 TimeHtml = "datetime=\"",
                 ContentHtml = "<div class=\"article__text\">",
                 ContentEndHtml = "<footer class=\"article__footer cf\">",
@@ -76,24 +73,22 @@ namespace Portals
     public static class Vecernji
     {
         public static readonly string
+                BaseUrl = "https://www.vecernji.hr",
+                ScrapUrl = "https://www.vecernji.hr/najnovije-vijesti/?page=",
                 ArticleListHtml = "<div class=\"row\"><div class=\"ui segment\"><h1>@title@</h1><p>@lead@</p><a target=\"_blank\" href=\"@link@\"><button class=\"ui right floated primary button\">Otvori originalni članak</button></a><a href=\"/articles/vecernji&id=@article@\"><button class=\"ui right floated secondary button\">Pretpregledaj članak</button></a><br><br><br><br></div></div><br>",
                 ArticleHtml = File.ReadAllText("html/templates/vecernji-article.html"),
-                Html = File.ReadAllText("html/portals/vecernji.html").Replace("@articles@", "<i>Trenutno nedostupno</i>");
-    }
-
-    public static class Dnevnik
-    {
-        public static readonly string
-                ArticleListHtml = "<div class=\"row\"><div class=\"ui segment\"><h1>@title@</h1><p>@lead@</p><a target=\"_blank\" href=\"@link@\"><button class=\"ui right floated primary button\">Otvori originalni članak</button></a><a href=\"/articles/dnevnik&id=@article@\"><button class=\"ui right floated secondary button\">Pretpregledaj članak</button></a><br><br><br><br></div></div><br>",
-                ArticleHtml = File.ReadAllText("html/templates/dnevnik-article.html"),
-                Html = File.ReadAllText("html/portals/dnevnik.html").Replace("@articles@", "<i>Trenutno nedostupno</i>");
+                Html = File.ReadAllText("html/portals/vecernji.html");
     }
 
     public static class Net
     {
         public static readonly string
+                BaseUrl = "https://www.net.hr",
+                ScrapUrl1 = "https://www.net.hr/kategorija/danas/hrvatska/",
+                ScrapUrl2 = "https://www.net.hr/kategorija/danas/hrvatska/page/2/",
+                ScrapUrl3 = "https://www.net.hr/kategorija/danas/hrvatska/page/3/",
                 ArticleListHtml = "<div class=\"row\"><div class=\"ui segment\"><h1>@title@</h1><p>@lead@</p><a target=\"_blank\" href=\"@link@\"><button class=\"ui right floated primary button\">Otvori originalni članak</button></a><a href=\"/articles/net&id=@article@\"><button class=\"ui right floated secondary button\">Pretpregledaj članak</button></a><br><br><br><br></div></div><br>",
                 ArticleHtml = File.ReadAllText("html/templates/net-article.html"),
-                Html = File.ReadAllText("html/portals/net.html").Replace("@articles@", "<i>Trenutno nedostupno</i>");
+                Html = File.ReadAllText("html/portals/net.html");
     }
 }
