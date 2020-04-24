@@ -280,7 +280,7 @@ namespace Portals
                     {
                         var article = new Article
                         {
-                            ID = links[i].Replace(Jutarnji.BaseUrl + "/", "").Replace('/', '-').TrimEnd(new char[] { '-' }),
+                            ID = links[i].Replace(Jutarnji.BaseUrl + "/", "").Replace('/', '-').TrimEnd('-'),
                             Link = links[i],
                             Title = titles[i],
                             Lead = leads[i]
@@ -396,9 +396,32 @@ namespace Portals
                 {
                     if (!all_links[i].Contains("24sata") && !links.Contains(all_links[i]))
                     {
-                        titles.Add(all_titles[i]);
-                        leads.Add(all_leads[i]);
-                        links.Add(all_links[i]);
+                        try
+                        {
+                            titles.Add(all_titles[i]);
+                        }
+                        catch
+                        {
+                            titles.Add("exception");
+                        }
+
+                        try
+                        {
+                            leads.Add(all_leads[i]);
+                        }
+                        catch
+                        {
+                            leads.Add("exception");
+                        }
+
+                        try
+                        {
+                            links.Add(all_links[i]);
+                        }
+                        catch
+                        {
+                            links.Add(Vecernji.BaseUrl);
+                        }
                     }
                 }
 

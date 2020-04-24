@@ -17,7 +17,6 @@
 */
 
 using System;
-using System.IO;
 using System.Threading;
 using System.Diagnostics;
 
@@ -70,38 +69,6 @@ namespace Portals
             }
         }
 
-        static void Scrappers()
-        {
-            Console.WriteLine("'Scrappers' thread started");
-            try
-            {
-                while (IsRunning)
-                {
-                    Stopwatch sw = new Stopwatch();
-                    sw.Start();
-
-                    Scrap24h();
-                    ScrapIndex();
-                    ScrapJutarnji();
-                    ScrapVecernji();
-                    ScrapNet();
-
-                    sw.Stop();
-                    var ts = sw.Elapsed;
-                    var time = ts.ToString("mm\\:ss\\.ff");
-                    var count = H24.Count(a => true) + Index.Count(a => true) + Jutarnji.Count(a => true) + Vecernji.Count(a => true) + Net.Count(a => true);
-
-                    Console.WriteLine($"Elapsed time: {time} | Total articles: {count}");
-                    Thread.Sleep(Constants.ScrappersSleepInterval);
-                }
-            }
-            catch (Exception ex)
-            {
-                IsRunning = false;
-                Console.WriteLine(ex.ToString());
-            }
-        }
-
         static void WebServer()
         {
             Console.WriteLine("'WebServer' thread started");
@@ -117,87 +84,34 @@ namespace Portals
             }
         }
 
-        static void Scrap24h()
+        static void Scrappers()
         {
+            Console.WriteLine("'Scrappers' thread started");
             try
             {
-                Utilities.ClearDirectory("html/articles/24h");
-                H24.Clear();
-                H24 = HapScrap.ScrapPortal(PortalType.H24);
-                Console.WriteLine($"Scrapped 24sata.hr -> Total articles: {H24.Count(a => true)}");
-                Utilities.UpdateList(H24, PortalType.H24);
-                H24.ForEach(a => File.WriteAllText("html/articles/24h/" + a.ID + ".html", a.ToHtml(PortalType.H24)));
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.ToString());
-            }
-        }
+                while (IsRunning)
+                {
+                    Stopwatch sw = new Stopwatch();
+                    sw.Start();
 
-        static void ScrapIndex()
-        {
-            try
-            {
-                Utilities.ClearDirectory("html/articles/index");
-                Index.Clear();
-                Index = HapScrap.ScrapPortal(PortalType.Index);
-                Console.WriteLine($"Scrapped index.hr -> Total articles: {Index.Count(a => true)}");
-                Utilities.UpdateList(Index, PortalType.Index);
-                Index.ForEach(a => File.WriteAllText("html/articles/index/" + a.ID + ".html", a.ToHtml(PortalType.Index)));
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.ToString());
-            }
-        }
+                    H24 = Utilities.CreateList(PortalType.H24);
+                    Index = Utilities.CreateList(PortalType.Index);
+                    Jutarnji = Utilities.CreateList(PortalType.Jutarnji);
+                    Vecernji = Utilities.CreateList(PortalType.Vecernji);
+                    Net = Utilities.CreateList(PortalType.Net);
 
-        static void ScrapJutarnji()
-        {
-            try
-            {
-                Utilities.ClearDirectory("html/articles/jutarnji");
-                Jutarnji.Clear();
-                Jutarnji = HapScrap.ScrapPortal(PortalType.Jutarnji);
-                Console.WriteLine($"Scrapped jutarnji.hr -> Total articles: {Jutarnji.Count(a => true)}");
-                Utilities.UpdateList(Jutarnji, PortalType.Jutarnji);
-                Jutarnji.ForEach(a => File.WriteAllText("html/articles/jutarnji/" + a.ID + ".html", a.ToHtml(PortalType.Jutarnji)));
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.ToString());
-            }
-        }
+                    sw.Stop();
+                    var ts = sw.Elapsed;
+                    var time = ts.ToString("mm\\:ss");
+                    var count = H24.Length + Index.Length + Jutarnji.Length + Vecernji.Length + Net.Length;
 
-        static void ScrapVecernji()
-        {
-            try
-            {
-                Utilities.ClearDirectory("html/articles/vecernji");
-                Vecernji.Clear();
-                Vecernji = HapScrap.ScrapPortal(PortalType.Vecernji);
-                Console.WriteLine($"Scrapped vecernji.hr -> Total articles: {Vecernji.Count(a => true)}");
-                Utilities.UpdateList(Vecernji, PortalType.Vecernji);
-                Vecernji.ForEach(a => File.WriteAllText("html/articles/vecernji/" + a.ID + ".html", a.ToHtml(PortalType.Vecernji)));
+                    Console.WriteLine($"Elapsed time: {time} | Total articles: {count}");
+                    Thread.Sleep(Constants.ScrappersSleepInterval);
+                }
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
-            }
-        }
-
-        static void ScrapNet()
-        {
-            try
-            {
-                Utilities.ClearDirectory("html/articles/net");
-                Net.Clear();
-                Net = HapScrap.ScrapPortal(PortalType.Net);
-                Console.WriteLine($"Scrapped net.hr -> Total articles: {Net.Count(a => true)}");
-                Utilities.UpdateList(Net, PortalType.Net);
-                Net.ForEach(a => File.WriteAllText("html/articles/net/" + a.ID + ".html", a.ToHtml(PortalType.Net)));
-            }
-            catch (Exception ex)
-            {
+                IsRunning = false;
                 Console.WriteLine(ex.ToString());
             }
         }

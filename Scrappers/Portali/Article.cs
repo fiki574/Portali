@@ -94,6 +94,11 @@ namespace Portals
                 if (Author.ToLowerInvariant().Contains("pr članak"))
                     return false;
             }
+            else if (type == PortalType.Net)
+            {
+                if (ID.ToLowerInvariant().Contains("https:"))
+                    return false;
+            }
             return true;
         }
 

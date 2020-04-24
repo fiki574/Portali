@@ -25,7 +25,7 @@ namespace Portals
         public static readonly int
             HttpServerPort = 5465,
             ScrappersSleepInterval = 60 * 1000 * 60,
-            MainThreadSleepInterval = 5000;
+            MainThreadSleepInterval = 10000;
 
         public static readonly string 
             Homepage = File.ReadAllText("html/index.html");
