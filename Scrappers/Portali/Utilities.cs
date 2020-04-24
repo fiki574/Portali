@@ -34,9 +34,9 @@ namespace Portals
                 foreach (var dir in di.GetDirectories())
                     dir.Delete(true);
             }
-            catch (Exception ex)
+            catch
             {
-                Console.WriteLine(ex.ToString());
+                Console.WriteLine($"Failed to clear directory: {path}");
             }
         }
 
@@ -71,10 +71,10 @@ namespace Portals
             }
 
             ClearDirectory(path);
-            articles.Clear();
             articles = HapScrap.ScrapPortal(type);
             Console.WriteLine($"Scrapped {portal} -> Total articles: {articles.Count(a => true)}");
             articles = UpdateList(articles, type);
+            ThreadSafeList<string> remove = new ThreadSafeList<string>();
             articles.ForEach(a =>
             {
                 try
@@ -83,8 +83,12 @@ namespace Portals
                 }
                 catch
                 {
+                    remove.Add(a.ID);
                 }
             });
+            remove.ForEach(s => articles.Remove(a => a.ID.Equals(s)));
+            remove.Clear();
+            remove = null;
             return articles;
         }
 

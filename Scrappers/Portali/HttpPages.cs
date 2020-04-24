@@ -16,7 +16,6 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System;
 using System.IO;
 using System.Net;
 using System.Collections.Generic;
@@ -50,10 +49,9 @@ namespace Portals
                 });
                 return H24.Html.Replace("@articles@", articles);
             }
-            catch (Exception ex)
+            catch
             {
-                Console.WriteLine(ex.ToString());
-                return "Greška";
+                return Constants.Redirect.Replace("@redurl@", "https://portali.bzg.com.hr");
             }
         }
 
@@ -70,10 +68,9 @@ namespace Portals
                 });
                 return Index.Html.Replace("@articles@", articles);
             }
-            catch (Exception ex)
+            catch
             {
-                Console.WriteLine(ex.ToString());
-                return "Greška";
+                return Constants.Redirect.Replace("@redurl@", "https://portali.bzg.com.hr");
             }
         }
 
@@ -90,10 +87,9 @@ namespace Portals
                 });
                 return Jutarnji.Html.Replace("@articles@", articles);
             }
-            catch (Exception ex)
+            catch
             {
-                Console.WriteLine(ex.ToString());
-                return "Greška";
+                return Constants.Redirect.Replace("@redurl@", "https://portali.bzg.com.hr");
             }
         }
 
@@ -110,10 +106,9 @@ namespace Portals
                 });
                 return Vecernji.Html.Replace("@articles@", articles);
             }
-            catch (Exception ex)
+            catch
             {
-                Console.WriteLine(ex.ToString());
-                return "Greška";
+                return Constants.Redirect.Replace("@redurl@", "https://portali.bzg.com.hr");
             }
         }
 
@@ -130,105 +125,109 @@ namespace Portals
                 });
                 return Net.Html.Replace("@articles@", articles);
             }
-            catch (Exception ex)
+            catch
             {
-                Console.WriteLine(ex.ToString());
-                return "Greška";
+                return Constants.Redirect.Replace("@redurl@", "https://portali.bzg.com.hr");
             }
         }
 
         [HttpHandler("/articles/24h")]
         private static string Handle24hArticle(HttpServer server, HttpListenerRequest request, Dictionary<string, string> parameters)
         {
+            var id = "";
             try
             {
                 if (!parameters.ContainsKey("id"))
                     return "Neispravan zahtjev";
 
-                var id = parameters["id"];
+                id = parameters["id"];
                 var html = File.ReadAllText($"html/articles/24h/{id}.html");
                 return html;
             }
-            catch (Exception ex)
+            catch
             {
-                Console.WriteLine(ex.ToString());
-                return "Greška";
+                Program.H24.Remove(a => a.ID.Equals(id));
+                return Constants.Redirect.Replace("@redurl@", "https://portali.bzg.com.hr/portals/24h.html");
             }
         }
 
         [HttpHandler("/articles/index")]
         private static string HandleIndexArticle(HttpServer server, HttpListenerRequest request, Dictionary<string, string> parameters)
         {
+            var id = "";
             try
             {
                 if (!parameters.ContainsKey("id"))
                     return "Neispravan zahtjev";
 
-                var id = parameters["id"];
+                id = parameters["id"];
                 var html = File.ReadAllText($"html/articles/index/{id}.html");
                 return html;
             }
-            catch (Exception ex)
+            catch
             {
-                Console.WriteLine(ex.ToString());
-                return "Greška";
+                Program.Index.Remove(a => a.ID.Equals(id));
+                return Constants.Redirect.Replace("@redurl@", "https://portali.bzg.com.hr/portals/index.html");
             }
         }
 
         [HttpHandler("/articles/jutarnji")]
         private static string HandleJutarnjiArticle(HttpServer server, HttpListenerRequest request, Dictionary<string, string> parameters)
         {
+            var id = "";
             try
             {
                 if (!parameters.ContainsKey("id"))
                     return "Neispravan zahtjev";
 
-                var id = parameters["id"];
+                id = parameters["id"];
                 var html = File.ReadAllText($"html/articles/jutarnji/{id}.html");
                 return html;
             }
-            catch (Exception ex)
+            catch
             {
-                Console.WriteLine(ex.ToString());
-                return "Greška";
+                Program.Index.Remove(a => a.ID.Equals(id));
+                return Constants.Redirect.Replace("@redurl@", "https://portali.bzg.com.hr/portals/jutarnji.html");
             }
         }
 
         [HttpHandler("/articles/vecernji")]
         private static string HandleVecernjiArticle(HttpServer server, HttpListenerRequest request, Dictionary<string, string> parameters)
         {
+            var id = "";
             try
             {
                 if (!parameters.ContainsKey("id"))
                     return "Neispravan zahtjev";
 
-                var id = parameters["id"];
+                id = parameters["id"];
                 var html = File.ReadAllText($"html/articles/vecernji/{id}.html");
                 return html;
             }
-            catch (Exception ex)
+            catch
             {
-                Console.WriteLine(ex.ToString());
-                return "Greška";
+                Program.Index.Remove(a => a.ID.Equals(id));
+                return Constants.Redirect.Replace("@redurl@", "https://portali.bzg.com.hr/portals/vecernji.html");
             }
         }
 
         [HttpHandler("/articles/net")]
         private static string HandleNetArticle(HttpServer server, HttpListenerRequest request, Dictionary<string, string> parameters)
         {
+            var id = "";
             try
             {
                 if (!parameters.ContainsKey("id"))
                     return "Neispravan zahtjev";
 
-                var id = parameters["id"];
+                id = parameters["id"];
                 var html = File.ReadAllText($"html/articles/net/{id}.html");
                 return html;
             }
-            catch (Exception ex)
+            catch
             {
-                Console.WriteLine(ex.ToString());
-                return "Greška";
+                Program.Index.Remove(a => a.ID.Equals(id));
+                return Constants.Redirect.Replace("@redurl@", "https://portali.bzg.com.hr/portals/jutarnji.html");
             }
         }
     }

@@ -27,7 +27,9 @@ namespace Portals
             ScrappersSleepInterval = 60 * 1000 * 60,
             MainThreadSleepInterval = 10000;
 
-        public static readonly string 
-            Homepage = File.ReadAllText("html/index.html");
+        public static readonly string
+            Homepage = File.ReadAllText("html/index.html"),
+            Redirect = "<!DOCTYPE html><html><head><meta http-equiv=\"Refresh\" content=\"0; url=@redurl@\"/></head><body></body></html>",
+            Empty = "<!DOCTYPE html><html><head></head><body></body></html>";
     }
 }

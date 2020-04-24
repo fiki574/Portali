@@ -39,7 +39,17 @@ namespace Portals
                 {
                     int count = 0;
                     foreach (var url in H24.URLs)
-                        datas[count++] = wc.DownloadString(url);
+                    {
+                        try
+                        {
+                            datas[count] = wc.DownloadString(url);
+                        }
+                        catch
+                        {
+                            datas[count] = "";
+                        }
+                        count++;
+                    }
                 }
 
                 foreach (var data in datas)
@@ -224,7 +234,7 @@ namespace Portals
                             foreach (var p in article_ps)
                             {
                                 var s = p.InnerText;
-                                if (!s.Contains("iframe"))
+                                if (!s.Contains("iframe") && !s.ToLowerInvariant().Contains("index.me"))
                                     content += p.InnerText + "<br><br>";
                             }
                             article.Content = content;
@@ -498,12 +508,35 @@ namespace Portals
                 HtmlDocument[] documents = new HtmlDocument[3];
                 using (var wc = new WebClient())
                 {
-                    documents[0] = new HtmlDocument();
-                    documents[0].LoadHtml(wc.DownloadString(Net.ScrapUrl1));
-                    documents[1] = new HtmlDocument();
-                    documents[1].LoadHtml(wc.DownloadString(Net.ScrapUrl2));
-                    documents[2] = new HtmlDocument();
-                    documents[2].LoadHtml(wc.DownloadString(Net.ScrapUrl3));
+                    try
+                    {
+                        documents[0] = new HtmlDocument();
+                        documents[0].LoadHtml(wc.DownloadString(Net.ScrapUrl1));
+                    }
+                    catch
+                    {
+                        documents[0].LoadHtml(Constants.Empty);
+                    }
+
+                    try
+                    {
+                        documents[1] = new HtmlDocument();
+                        documents[1].LoadHtml(wc.DownloadString(Net.ScrapUrl2));
+                    }
+                    catch
+                    {
+                        documents[1].LoadHtml(Constants.Empty);
+                    }
+
+                    try
+                    {
+                        documents[2] = new HtmlDocument();
+                        documents[2].LoadHtml(wc.DownloadString(Net.ScrapUrl3));
+                    }
+                    catch
+                    {
+                        documents[2].LoadHtml(Constants.Empty);
+                    }
                 }
 
                 foreach (var document in documents)
@@ -562,8 +595,15 @@ namespace Portals
                     HtmlDocument article_document = null;
                     using (var wc = new WebClient())
                     {
-                        article_document = new HtmlDocument();
-                        article_document.LoadHtml(wc.DownloadString(article.Link));
+                        try
+                        {
+                            article_document = new HtmlDocument();
+                            article_document.LoadHtml(wc.DownloadString(article.Link));
+                        }
+                        catch
+                        {
+                            article_document.LoadHtml(Constants.Empty);
+                        }
                     }
 
                     var article_body = article_document.DocumentNode.SelectSingleNode("//body");
