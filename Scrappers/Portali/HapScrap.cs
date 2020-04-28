@@ -647,17 +647,24 @@ namespace Portals
                                     break;
                                 }
 
-                            var content = "";
-                            var article_ps = div.SelectNodes("//p");
-                            foreach (var p in article_ps)
-                                if (!p.GetClasses().Contains("description") && !p.GetClasses().Contains("undertitle"))
-                                {
-                                    var s = p.InnerText;
-                                    if (!s.Contains("iframe"))
-                                        content += s + "<br><br>";
-                                }
+                            try
+                            {
+                                var content = "";
+                                var article_ps = div.SelectNodes("//p");
+                                foreach (var p in article_ps)
+                                    if (!p.GetClasses().Contains("description") && !p.GetClasses().Contains("undertitle"))
+                                    {
+                                        var s = p.InnerText;
+                                        if (!s.Contains("iframe"))
+                                            content += s + "<br><br>";
+                                    }
 
-                            article.Content = content;
+                                article.Content = content;
+                            }
+                            catch
+                            {
+                                article.Content = "exception";
+                            }
                         }
                     }
                 }

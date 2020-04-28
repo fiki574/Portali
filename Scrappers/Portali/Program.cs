@@ -27,18 +27,17 @@ namespace Portals
         private static Thread[] Threads = null;
         private static HttpServer Server = null;
         private static bool IsRunning = false;
-        public static ThreadSafeList<Article> H24 = null, Index = null, Jutarnji = null, Vecernji = null, Net = null;
+        public static ThreadSafeList<Article> 
+            H24 = new ThreadSafeList<Article>(), 
+            Index = new ThreadSafeList<Article>(), 
+            Jutarnji = new ThreadSafeList<Article>(), 
+            Vecernji = new ThreadSafeList<Article>(), 
+            Net = new ThreadSafeList<Article>();
 
         static void Main(string[] args)
         {
             try
             {
-                H24 = new ThreadSafeList<Article>();
-                Index = new ThreadSafeList<Article>();
-                Jutarnji = new ThreadSafeList<Article>();
-                Vecernji = new ThreadSafeList<Article>();
-                Net = new ThreadSafeList<Article>();
-
                 Threads = new Thread[2];
                 IsRunning = true;
                 Console.WriteLine("Starting the 'Scrappers' and 'WebServer' threads");
@@ -52,20 +51,28 @@ namespace Portals
                 while (IsRunning)
                     Thread.Sleep(Constants.MainThreadSleepInterval);
             }
-            catch (Exception ex)
+            catch
             {
                 IsRunning = false;
-                Console.WriteLine(ex.ToString());
             }
             finally
             {
-                Console.WriteLine("IsRunning is false, stopping everything");
-                Server.Stop();
-                Server = null;
-                Threads[0].Join();
-                Threads[1].Join();
-                Threads = null;
-                Console.WriteLine("Stopped everything");
+                if (!IsRunning)
+                {
+                    Console.WriteLine("IsRunning is false, stopping everything");
+                    Server.Stop();
+                    Server = null;
+                    Threads[0].Join();
+                    Threads[1].Join();
+                    Threads = null;
+                    Console.WriteLine("Stopped everything");
+                }
+            }
+
+            if (args != null && args.Length == 1 && args[0].Equals("--restart-always"))
+            {
+                Console.WriteLine("Restarting...");
+                Main(args);
             }
         }
 
@@ -77,10 +84,9 @@ namespace Portals
                 Server = new HttpServer(Constants.HttpServerPort);
                 Server.Start();
             }
-            catch (Exception ex)
+            catch
             {
                 IsRunning = false;
-                Console.WriteLine(ex.ToString());
             }
         }
 
@@ -109,10 +115,9 @@ namespace Portals
                     Thread.Sleep(Constants.ScrappersSleepInterval);
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 IsRunning = false;
-                Console.WriteLine(ex.ToString());
             }
         }
     }
