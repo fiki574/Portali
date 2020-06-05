@@ -18,7 +18,6 @@
 
 using System;
 using System.Threading;
-using System.Diagnostics;
 
 namespace Portals
 {
@@ -27,11 +26,11 @@ namespace Portals
         private static Thread[] Threads = null;
         private static HttpServer Server = null;
         private static bool IsRunning = false;
-        public static ThreadSafeList<Article> 
-            H24 = new ThreadSafeList<Article>(), 
-            Index = new ThreadSafeList<Article>(), 
-            Jutarnji = new ThreadSafeList<Article>(), 
-            Vecernji = new ThreadSafeList<Article>(), 
+        public static ThreadSafeList<Article>
+            H24 = new ThreadSafeList<Article>(),
+            Index = new ThreadSafeList<Article>(),
+            Jutarnji = new ThreadSafeList<Article>(),
+            Vecernji = new ThreadSafeList<Article>(),
             Net = new ThreadSafeList<Article>();
 
         static void Main(string[] args)
@@ -51,8 +50,9 @@ namespace Portals
                 while (IsRunning)
                     Thread.Sleep(Constants.MainThreadSleepInterval);
             }
-            catch
+            catch (Exception ex)
             {
+                Console.WriteLine(ex.ToString());
                 IsRunning = false;
             }
             finally
@@ -84,8 +84,9 @@ namespace Portals
                 Server = new HttpServer(Constants.HttpServerPort);
                 Server.Start();
             }
-            catch
+            catch (Exception ex)
             {
+                Console.WriteLine(ex.ToString());
                 IsRunning = false;
             }
         }
@@ -97,26 +98,31 @@ namespace Portals
             {
                 while (IsRunning)
                 {
-                    Stopwatch sw = new Stopwatch();
-                    sw.Start();
+                    var time = Utilities.StopWatch(() =>
+                    {
+                        //if (!Utilities.TryCatch(() => H24 = Utilities.CreateList(PortalType.H24)))
+                            //Console.WriteLine("Exception occured while scrapping 24sata.hr");
 
-                    H24 = Utilities.CreateList(PortalType.H24);
-                    Index = Utilities.CreateList(PortalType.Index);
-                    Jutarnji = Utilities.CreateList(PortalType.Jutarnji);
-                    Vecernji = Utilities.CreateList(PortalType.Vecernji);
-                    Net = Utilities.CreateList(PortalType.Net);
+                        if (!Utilities.TryCatch(() => Index = Utilities.CreateList(PortalType.Index)))
+                            Console.WriteLine("Exception occured while scrapping index.hr");
 
-                    sw.Stop();
-                    var ts = sw.Elapsed;
-                    var time = ts.ToString("mm\\:ss");
+                        if (!Utilities.TryCatch(() => Jutarnji = Utilities.CreateList(PortalType.Jutarnji)))
+                            Console.WriteLine("Exception occured while scrapping jutarnji.hr");
+
+                        if (!Utilities.TryCatch(() => Vecernji = Utilities.CreateList(PortalType.Vecernji)))
+                            Console.WriteLine("Exception occured while scrapping vecernji.hr");
+
+                        if (!Utilities.TryCatch(() => Net = Utilities.CreateList(PortalType.Net)))
+                            Console.WriteLine("Exception occured while scrapping net.hr");
+                    });
                     var count = H24.Length + Index.Length + Jutarnji.Length + Vecernji.Length + Net.Length;
-
                     Console.WriteLine($"Elapsed time: {time} | Total articles: {count}");
                     Thread.Sleep(Constants.ScrappersSleepInterval);
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                Console.WriteLine(ex.ToString());
                 IsRunning = false;
             }
         }

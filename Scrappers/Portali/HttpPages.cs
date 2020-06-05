@@ -146,7 +146,6 @@ namespace Portals
             }
             catch
             {
-                Program.H24.Remove(a => a.ID.Equals(id));
                 return Constants.Redirect.Replace("@redurl@", "https://portali.bzg.com.hr/portals/24h.html");
             }
         }
@@ -166,7 +165,6 @@ namespace Portals
             }
             catch
             {
-                Program.Index.Remove(a => a.ID.Equals(id));
                 return Constants.Redirect.Replace("@redurl@", "https://portali.bzg.com.hr/portals/index.html");
             }
         }
@@ -186,7 +184,6 @@ namespace Portals
             }
             catch
             {
-                Program.Index.Remove(a => a.ID.Equals(id));
                 return Constants.Redirect.Replace("@redurl@", "https://portali.bzg.com.hr/portals/jutarnji.html");
             }
         }
@@ -206,7 +203,6 @@ namespace Portals
             }
             catch
             {
-                Program.Index.Remove(a => a.ID.Equals(id));
                 return Constants.Redirect.Replace("@redurl@", "https://portali.bzg.com.hr/portals/vecernji.html");
             }
         }
@@ -226,7 +222,6 @@ namespace Portals
             }
             catch
             {
-                Program.Index.Remove(a => a.ID.Equals(id));
                 return Constants.Redirect.Replace("@redurl@", "https://portali.bzg.com.hr/portals/jutarnji.html");
             }
         }

@@ -45,7 +45,7 @@ namespace Portals
                 ContentEndHtml = "<footer class=\"article__footer cf\">",
                 ArticleListHtml = "<div class=\"row\"><div class=\"ui segment\"><h1>@title@</h1><p>@lead@</p><a target=\"_blank\" href=\"@link@\"><button class=\"ui right floated primary button\">Otvori originalni članak</button></a><a href=\"/articles/24h&id=@article@\"><button class=\"ui right floated secondary button\">Pretpregledaj članak</button></a><br><br><br><br></div></div><br>",
                 ArticleHtml = File.ReadAllText("html/templates/24h-article.html"),
-                Html = File.ReadAllText("html/portals/24h.html");
+                Html = File.ReadAllText("html/portals/24h.html").Replace("@articles@", "Nedostupno na neodređeno vrijeme zbog nedavne promjene dizajna što je pokvarilo kompatibilnost s ovim programom.");
     }
 
     public static class Index

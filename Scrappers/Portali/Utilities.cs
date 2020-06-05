@@ -18,6 +18,7 @@
 
 using System;
 using System.IO;
+using System.Diagnostics;
 
 namespace Portals
 {
@@ -38,6 +39,30 @@ namespace Portals
             {
                 Console.WriteLine($"Failed to clear directory: {path}");
             }
+        }
+
+        public static bool TryCatch(Action a)
+        {
+            try
+            {
+                a.Invoke();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public static string StopWatch(Action a)
+        {
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            a.Invoke();
+            sw.Stop();
+            var ts = sw.Elapsed;
+            var time = ts.ToString("mm\\:ss");
+            return time;
         }
 
         public static ThreadSafeList<Article> CreateList(PortalType type)

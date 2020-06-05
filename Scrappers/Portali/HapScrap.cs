@@ -33,6 +33,8 @@ namespace Portals
             var articles = new ThreadSafeList<Article>();
             if (type == PortalType.H24)
             {
+                //TODO: fix exceptions due to 24sata.hr design updates
+
                 string[] datas = new string[3] { "", "", "" };
                 List<string> links = new List<string>();
                 using (var wc = new WebClient())
@@ -59,7 +61,7 @@ namespace Portals
                                 links.Add(sublink);
 
                 foreach (var link in links)
-                { 
+                {
                     if (!link.Equals(H24.BaseUrl1) && !link.Equals(H24.BaseUrl2) && link.Contains(H24.BaseUrl1))
                     {
                         using (var wc = new WebClient())
@@ -79,42 +81,74 @@ namespace Portals
                             }
 
                             var document = new HtmlDocument();
-                            document.LoadHtml(d);
-                            var body = document.DocumentNode.SelectSingleNode("//body");
+                            HtmlNode body = null;
+                            try
+                            {
+                                document.LoadHtml(d);
+                                body = document.DocumentNode.SelectSingleNode("//body");
+                            }
+                            catch
+                            {
+                                continue;
+                            }
 
-                            var article_titles = body.SelectNodes("//h1");
-                            foreach (var title in article_titles)
-                                if (title.GetClasses().Contains("article__title"))
-                                {
-                                    article.Title = title.InnerText;
-                                    break;
-                                }
+                            if (body == null)
+                                continue;
 
-                            var article_leads = body.SelectNodes("//h2");
-                            foreach (var lead in article_leads)
-                                if (lead.GetClasses().Contains("article__lead"))
-                                {
-                                    article.Lead = lead.InnerText;
-                                    break;
-                                }
+                            try
+                            {
+                                var article_titles = body.SelectNodes("//h1");
+                                foreach (var title in article_titles)
+                                    if (title.GetClasses().Contains("article__title"))
+                                    {
+                                        article.Title = title.InnerText;
+                                        break;
+                                    }
+                            }
+                            catch
+                            {
+                                article.Title = "exception";
+                            }
 
-                            var article_spans = body.SelectNodes("//span");
-                            article.Author = "";
-                            foreach (var span in article_spans)
-                                if (span.GetClasses().Contains("article__author"))
-                                {
-                                    var str = span.InnerHtml.Trim();
-                                    var regex = "<span>(.*?)</span>";
-                                    MatchCollection matches = Regex.Matches(str, regex);
-                                    if (matches.Count > 0)
-                                        foreach (Match match in matches)
-                                        {
-                                            var author = match.Groups[1].ToString().Trim();
-                                            article.Author += author + ", ";
-                                        }
-                                }
+                            try
+                            {
+                                var article_leads = body.SelectNodes("//p");
+                                foreach (var lead in article_leads)
+                                    if (lead.GetClasses().Contains("article__lead_text"))
+                                    {
+                                        article.Lead = lead.InnerText;
+                                        break;
+                                    }
+                            }
+                            catch
+                            {
+                                article.Lead = "exception";
+                            }
 
-                            article.Author = article.Author.TrimEnd(' ').TrimEnd(',');
+                            try
+                            {
+                                var article_spans = body.SelectNodes("//span");
+                                article.Author = "";
+                                foreach (var span in article_spans)
+                                    if (span.GetClasses().Contains("article__authors_item"))
+                                    {
+                                        var str = span.InnerHtml.Trim();
+                                        var regex = "<span>(.*?)</span>";
+                                        MatchCollection matches = Regex.Matches(str, regex);
+                                        if (matches.Count > 0)
+                                            foreach (Match match in matches)
+                                            {
+                                                var author = match.Groups[1].ToString().Trim();
+                                                article.Author += author + ", ";
+                                            }
+                                    }
+
+                                article.Author = article.Author.TrimEnd(' ').TrimEnd(',');
+                            }
+                            catch
+                            {
+                                article.Author = "exception";
+                            }
 
                             try
                             {
@@ -163,8 +197,20 @@ namespace Portals
                 List<string> titles = new List<string>();
                 List<string> leads = new List<string>();
 
-                var document = web.Load(Index.ScrapUrl);
-                var body = document.DocumentNode.SelectSingleNode("//body");
+                var document = new HtmlDocument();
+                HtmlNode body = null;
+                try
+                {
+                    document = web.Load(Index.ScrapUrl);
+                    body = document.DocumentNode.SelectSingleNode("//body");
+                }
+                catch
+                {
+                    return articles;
+                }
+
+                if (body == null)
+                    return articles;
 
                 var article_links = body.SelectNodes("//a[@href]");
                 foreach (var link in article_links)
@@ -203,43 +249,68 @@ namespace Portals
                     var article_document = web.Load(article.Link);
                     var article_body = article_document.DocumentNode.SelectSingleNode("//body");
 
-                    var article_span = article_body.SelectNodes("//span");
-                    foreach (var author in article_span)
-                        if (author.GetClasses().Contains("author"))
-                        {
-                            article.Author = author.InnerText;
-                            break;
-                        }
-
-                    foreach (var time in article_span)
-                        if (time.GetClasses().Contains("time"))
-                        {
-                            var str = time.InnerHtml;
-                            var regex = "datetime=\"(.*?)\"";
-                            MatchCollection matches = Regex.Matches(str, regex);
-                            if (matches.Count > 0)
-                                foreach (Match match in matches)
-                                {
-                                    DateTime dt = DateTime.Parse(match.Groups[1].ToString().Trim());
-                                    article.Time = dt.ToString();
-                                }
-                        }
-
-                    var article_divs = article_body.SelectNodes("//div");
-                    foreach (var div in article_divs)
-                        if (div.GetClasses().Contains("text"))
-                        {
-                            string content = "";
-                            var article_ps = div.SelectNodes("//p");
-                            foreach (var p in article_ps)
+                    HtmlNodeCollection article_span = null;
+                    try
+                    {
+                        article_span = article_body.SelectNodes("//span");
+                        foreach (var author in article_span)
+                            if (author.GetClasses().Contains("author"))
                             {
-                                var s = p.InnerText;
-                                if (!s.Contains("iframe") && !s.ToLowerInvariant().Contains("index.me"))
-                                    content += p.InnerText + "<br><br>";
+                                article.Author = author.InnerText;
+                                break;
                             }
-                            article.Content = content;
-                            break;
-                        }
+                    }
+                    catch
+                    {
+                        article.Author = "exception";
+                    }
+
+                    if (article_span == null)
+                        continue;
+
+                    try
+                    {
+                        foreach (var time in article_span)
+                            if (time.GetClasses().Contains("time"))
+                            {
+                                var str = time.InnerHtml;
+                                var regex = "datetime=\"(.*?)\"";
+                                MatchCollection matches = Regex.Matches(str, regex);
+                                if (matches.Count > 0)
+                                    foreach (Match match in matches)
+                                    {
+                                        DateTime dt = DateTime.Parse(match.Groups[1].ToString().Trim());
+                                        article.Time = dt.ToString();
+                                    }
+                            }
+                    }
+                    catch
+                    {
+                        article.Time = "exception";
+                    }
+
+                    try
+                    {
+                        var article_divs = article_body.SelectNodes("//div");
+                        foreach (var div in article_divs)
+                            if (div.GetClasses().Contains("text"))
+                            {
+                                string content = "";
+                                var article_ps = div.SelectNodes("//p");
+                                foreach (var p in article_ps)
+                                {
+                                    var s = p.InnerText;
+                                    if (!s.Contains("iframe") && !s.ToLowerInvariant().Contains("index.me"))
+                                        content += p.InnerText + "<br><br>";
+                                }
+                                article.Content = content;
+                                break;
+                            }
+                    }
+                    catch
+                    {
+                        article.Content = "exception";
+                    }
                 }
             }
             else if (type == PortalType.Jutarnji)
@@ -304,38 +375,58 @@ namespace Portals
                     var article_document = web.Load(article.Link);
                     var article_body = article_document.DocumentNode.SelectSingleNode("//body");
 
-                    var article_ps = article_body.SelectNodes("//p");
-                    foreach (var p in article_ps)
-                        if (p.GetClasses().Contains("published-date"))
-                        {
-                            article.Time = p.InnerText;
-                            break;
-                        }
-
-                    var article_uls = article_body.SelectNodes("//ul");
-                    foreach (var ul in article_uls)
-                        if (ul.InnerText.Contains("AUTOR"))
-                        {
-                            var autor = ul.InnerText.Trim().Replace("\n", "").Replace("  ", " ").Replace("AUTOR: ", "");
-                            autor = autor.Split("OBJAVLJENO:")[0];
-                            article.Author = autor;
-                        }
-
-                    string content = "";
-                    var article_sections = article_body.SelectNodes("//section");
-                    foreach (var section in article_sections)
-                        if (section.Id == "CImaincontent" && section.GetClasses().Contains("ci_body"))
-                        {
-                            var section_ps = section.SelectNodes("//p");
-                            foreach (var p in section_ps)
+                    try
+                    {
+                        var article_ps = article_body.SelectNodes("//p");
+                        foreach (var p in article_ps)
+                            if (p.GetClasses().Contains("published-date"))
                             {
-                                var s = p.InnerText;
-                                if (!p.GetClasses().Contains("overline") && !string.IsNullOrEmpty(s.Trim()) && !s.Contains("VIDEO") && !s.Contains("PROMO") && !s.Contains(article.Lead) && !s.Contains(article.Time) && !s.Contains("Copyright © HANZA MEDIA d.o.o. Sva prava pridržana.") && !s.Contains("iframe"))
-                                    content += s + "<br><br>";
+                                article.Time = p.InnerText;
+                                break;
                             }
-                        }
+                    }
+                    catch
+                    {
+                        article.Time = "exception";
+                    }
 
-                    article.Content = content;
+                    try
+                    {
+                        var article_uls = article_body.SelectNodes("//ul");
+                        foreach (var ul in article_uls)
+                            if (ul.InnerText.Contains("AUTOR"))
+                            {
+                                var autor = ul.InnerText.Trim().Replace("\n", "").Replace("  ", " ").Replace("AUTOR: ", "");
+                                autor = autor.Split("OBJAVLJENO:")[0];
+                                article.Author = autor;
+                            }
+                    }
+                    catch
+                    {
+                        article.Author = "exception";
+                    }
+
+                    try
+                    {
+                        string content = "";
+                        var article_sections = article_body.SelectNodes("//section");
+                        foreach (var section in article_sections)
+                            if (section.Id == "CImaincontent" && section.GetClasses().Contains("ci_body"))
+                            {
+                                var section_ps = section.SelectNodes("//p");
+                                foreach (var p in section_ps)
+                                {
+                                    var s = p.InnerText;
+                                    if (!p.GetClasses().Contains("overline") && !string.IsNullOrEmpty(s.Trim()) && !s.Contains("VIDEO") && !s.Contains("PROMO") && !s.Contains(article.Lead) && !s.Contains(article.Time) && !s.Contains("Copyright © HANZA MEDIA d.o.o. Sva prava pridržana.") && !s.Contains("iframe"))
+                                        content += s + "<br><br>";
+                                }
+                            }
+                        article.Content = content;
+                    }
+                    catch
+                    {
+                        article.Content = "exception";
+                    }
                 }
             }
             else if (type == PortalType.Vecernji)
@@ -454,48 +545,84 @@ namespace Portals
                     var article_document = web.Load(article.Link);
                     var article_body = article_document.DocumentNode.SelectSingleNode("//body");
 
-                    var article_spans = article_body.SelectNodes("//span");
-                    foreach (var span in article_spans)
-                        if (span.GetClasses().Contains("article__lead"))
-                        {
-                            article.Lead = span.InnerText;
-                            break;
-                        }
-
-                    var article_divs = article_body.SelectNodes("//div");
-                    foreach (var div in article_divs)
-                        if (div.GetClasses().Contains("article__author") && div.InnerHtml.Contains("Autor"))
-                        {
-                            var articles_as = div.SelectNodes("//a");
-                            foreach (var a in articles_as)
-                                if (a.GetClasses().Contains("article__author--link"))
-                                    article.Author = a.InnerText;
-                        }
-
-                    foreach (var span in article_spans)
-                        if (span.GetClasses().Contains("article__header_date"))
-                        {
-                            var str = "<i class=\"icon icon-clock3 icon--linear\"></i>";
-                            var date = span.InnerText.Replace(str, "").Trim();
-                            article.Time = span.InnerText;
-                            break;
-                        }
-
-                    var content = "";
-                    foreach (var div in article_divs)
+                    HtmlNodeCollection article_spans = null;
+                    try
                     {
-                        if (div.GetClasses().Contains("article__body--main_content"))
-                        {
-                            var article_ps = div.SelectNodes("//p");
-                            foreach (var p in article_ps)
+                        article_spans = article_body.SelectNodes("//span");
+                        foreach (var span in article_spans)
+                            if (span.GetClasses().Contains("article__lead"))
                             {
-                                var s = p.InnerText;
-                                if (!p.GetClasses().Contains("commbox__content") && !p.GetClasses().Contains("js_commboxContent") && !s.Contains("VIDEO") && !s.Contains("Vaš preglednik ne omogućava pregled ovog sadržaja.") && !s.Contains("Za komentiranje je potrebna prijava/registracija.") && !s.Contains("iframe"))
-                                    content += s + "<br><br>";
+                                article.Lead = span.InnerText;
+                                break;
                             }
-                            article.Content = content;
-                            break;
+                    }
+                    catch
+                    {
+                        article.Lead = "exception";
+                    }
+
+                    if (article_spans == null)
+                        continue;
+
+                    HtmlNodeCollection article_divs = null;
+                    try
+                    {
+                        article_divs = article_body.SelectNodes("//div");
+                        foreach (var div in article_divs)
+                            if (div.GetClasses().Contains("article__author") && div.InnerHtml.Contains("Autor"))
+                            {
+                                var articles_as = div.SelectNodes("//a");
+                                foreach (var a in articles_as)
+                                    if (a.GetClasses().Contains("article__author--link"))
+                                        article.Author = a.InnerText;
+                            }
+                    }
+                    catch
+                    {
+                        article.Author = "exception";
+                    }
+
+                    if (article_divs == null)
+                        continue;
+
+                    try
+                    {
+                        foreach (var span in article_spans)
+                            if (span.GetClasses().Contains("article__header_date"))
+                            {
+                                var str = "<i class=\"icon icon-clock3 icon--linear\"></i>";
+                                var date = span.InnerText.Replace(str, "").Trim();
+                                article.Time = span.InnerText;
+                                break;
+                            }
+                    }
+                    catch
+                    {
+                        article.Time = "exception";
+                    }
+
+                    try
+                    {
+                        var content = "";
+                        foreach (var div in article_divs)
+                        {
+                            if (div.GetClasses().Contains("article__body--main_content"))
+                            {
+                                var article_ps = div.SelectNodes("//p");
+                                foreach (var p in article_ps)
+                                {
+                                    var s = p.InnerText;
+                                    if (!p.GetClasses().Contains("commbox__content") && !p.GetClasses().Contains("js_commboxContent") && !s.Contains("VIDEO") && !s.Contains("Vaš preglednik ne omogućava pregled ovog sadržaja.") && !s.Contains("Za komentiranje je potrebna prijava/registracija.") && !s.Contains("iframe"))
+                                        content += s + "<br><br>";
+                                }
+                                article.Content = content;
+                                break;
+                            }
                         }
+                    }
+                    catch
+                    {
+                        article.Content = "exception";
                     }
                 }
             }
@@ -606,6 +733,9 @@ namespace Portals
                         }
                     }
 
+                    if (article_document == null)
+                        continue;
+
                     var article_body = article_document.DocumentNode.SelectSingleNode("//body");
 
                     var article_divs = article_body.SelectNodes("//div");
@@ -613,39 +743,62 @@ namespace Portals
                     {
                         if (div.GetClasses().Contains("metabox"))
                         {
-                            var str = div.InnerHtml.Trim();
-                            var regex = "<span>Autor:(.*?)</span>";
-                            MatchCollection matches = Regex.Matches(str, regex);
-                            if (matches.Count > 0)
-                                foreach (Match match in matches)
-                                {
-                                    var author = match.Groups[1].ToString().Trim();
-                                    article.Author = author;
-                                    break;
-                                }
+                            string regex = "", str = "";
+                            MatchCollection matches = null;
+                            try
+                            {
+                                str = div.InnerHtml.Trim();
+                                regex = "<span>Autor:(.*?)</span>";
+                                matches = Regex.Matches(str, regex);
+                                if (matches.Count > 0)
+                                    foreach (Match match in matches)
+                                    {
+                                        var author = match.Groups[1].ToString().Trim();
+                                        article.Author = author;
+                                        break;
+                                    }
+                            }
+                            catch
+                            {
+                                article.Author = "exception";
+                            }
 
-                            regex = "<span><i class=\"fa fa-clock-o\"></i>(.*?)</span>";
-                            matches = Regex.Matches(str, regex);
-                            if (matches.Count > 0)
-                                foreach (Match match in matches)
-                                {
-                                    var time = match.Groups[1].ToString().Trim();
-                                    article.Time = time;
-                                    break;
-                                }
+                            try
+                            {
+                                regex = "<span><i class=\"fa fa-clock-o\"></i>(.*?)</span>";
+                                matches = Regex.Matches(str, regex);
+                                if (matches.Count > 0)
+                                    foreach (Match match in matches)
+                                    {
+                                        var time = match.Groups[1].ToString().Trim();
+                                        article.Time = time;
+                                        break;
+                                    }
+                            }
+                            catch
+                            {
+                                article.Time = "exception";
+                            }
                         }
                         else if (div.GetClasses().Contains("article-content"))
                         {
-                            var str = div.InnerHtml;
-                            var regex = "<h4>(.*?)</h4>";
-                            MatchCollection matches = Regex.Matches(str, regex);
-                            if (matches.Count > 0)
-                                foreach (Match match in matches)
-                                {
-                                    var lead = match.Groups[1].ToString().Trim();
-                                    article.Lead = lead;
-                                    break;
-                                }
+                            try
+                            {
+                                var str = div.InnerHtml;
+                                var regex = "<h4>(.*?)</h4>";
+                                MatchCollection matches = Regex.Matches(str, regex);
+                                if (matches.Count > 0)
+                                    foreach (Match match in matches)
+                                    {
+                                        var lead = match.Groups[1].ToString().Trim();
+                                        article.Lead = lead;
+                                        break;
+                                    }
+                            }
+                            catch
+                            {
+                                article.Lead = "exception";
+                            }
 
                             try
                             {
