@@ -47,6 +47,8 @@ namespace Portals
                     var article = H24.ArticleListHtml.Replace("@title@", a.Title).Replace("@lead@", a.Lead).Replace("@link@", a.Link).Replace("@article@", a.ID);
                     articles += article;
                 });
+                if (Program.H24.Count(a => true) == 0)
+                    articles = "Nema članaka za prikaz.";
                 return H24.Html.Replace("@articles@", articles);
             }
             catch
@@ -66,6 +68,8 @@ namespace Portals
                     var article = Index.ArticleListHtml.Replace("@title@", a.Title).Replace("@lead@", a.Lead).Replace("@link@", a.Link).Replace("@article@", a.ID);
                     articles += article;
                 });
+                if (Program.Index.Count(a => true) == 0)
+                    articles = "Nema članaka za prikaz.";
                 return Index.Html.Replace("@articles@", articles);
             }
             catch
@@ -85,6 +89,8 @@ namespace Portals
                     var article = Jutarnji.ArticleListHtml.Replace("@title@", a.Title).Replace("@lead@", a.Lead).Replace("@link@", a.Link).Replace("@article@", a.ID);
                     articles += article;
                 });
+                if (Program.Jutarnji.Count(a => true) == 0)
+                    articles = "Nema članaka za prikaz.";
                 return Jutarnji.Html.Replace("@articles@", articles);
             }
             catch
@@ -104,6 +110,8 @@ namespace Portals
                     var article = Vecernji.ArticleListHtml.Replace("@title@", a.Title).Replace("@lead@", a.Lead).Replace("@link@", a.Link).Replace("@article@", a.ID);
                     articles += article;
                 });
+                if (Program.Vecernji.Count(a => true) == 0)
+                    articles = "Nema članaka za prikaz.";
                 return Vecernji.Html.Replace("@articles@", articles);
             }
             catch
@@ -123,6 +131,8 @@ namespace Portals
                     var article = Net.ArticleListHtml.Replace("@title@", a.Title).Replace("@lead@", a.Lead).Replace("@link@", a.Link).Replace("@article@", a.ID);
                     articles += article;
                 });
+                if (Program.Net.Count(a => true) == 0)
+                    articles = "Nema članaka za prikaz.";
                 return Net.Html.Replace("@articles@", articles);
             }
             catch

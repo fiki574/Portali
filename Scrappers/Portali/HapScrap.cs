@@ -33,8 +33,6 @@ namespace Portals
             var articles = new ThreadSafeList<Article>();
             if (type == PortalType.H24)
             {
-                //TODO: fix exceptions due to 24sata.hr design updates
-
                 string[] datas = new string[3] { "", "", "" };
                 List<string> links = new List<string>();
                 using (var wc = new WebClient())
@@ -99,11 +97,10 @@ namespace Portals
                             {
                                 var article_titles = body.SelectNodes("//h1");
                                 foreach (var title in article_titles)
-                                    if (title.GetClasses().Contains("article__title"))
-                                    {
-                                        article.Title = title.InnerText;
-                                        break;
-                                    }
+                                {
+                                    article.Title = title.InnerHtml;
+                                    break;
+                                }
                             }
                             catch
                             {
@@ -112,13 +109,12 @@ namespace Portals
 
                             try
                             {
-                                var article_leads = body.SelectNodes("//p");
+                                var article_leads = body.SelectNodes("//h2");
                                 foreach (var lead in article_leads)
-                                    if (lead.GetClasses().Contains("article__lead_text"))
-                                    {
-                                        article.Lead = lead.InnerText;
-                                        break;
-                                    }
+                                {
+                                    article.Lead = lead.InnerHtml;
+                                    break;
+                                }
                             }
                             catch
                             {
@@ -127,23 +123,10 @@ namespace Portals
 
                             try
                             {
-                                var article_spans = body.SelectNodes("//span");
-                                article.Author = "";
-                                foreach (var span in article_spans)
-                                    if (span.GetClasses().Contains("article__authors_item"))
-                                    {
-                                        var str = span.InnerHtml.Trim();
-                                        var regex = "<span>(.*?)</span>";
-                                        MatchCollection matches = Regex.Matches(str, regex);
-                                        if (matches.Count > 0)
-                                            foreach (Match match in matches)
-                                            {
-                                                var author = match.Groups[1].ToString().Trim();
-                                                article.Author += author + ", ";
-                                            }
-                                    }
-
-                                article.Author = article.Author.TrimEnd(' ').TrimEnd(',');
+                                var article_ul = body.SelectNodes("//ul")[1];
+                                article.Author = article_ul.InnerHtml.Trim().Replace("<li>", "").Replace("</li>", ",").Trim();
+                                article.Author = article.Author.TrimEnd(',').Trim();
+                                article.Author = article.Author.Replace("<a href=\"https://www.24sata.hr/tagovi/", "").Trim().Replace("<a href=\"https://www.24sata.hr/autori/", "").Trim().Replace("\"></a>", "").Replace(" ", "").Replace("\n", "");
                             }
                             catch
                             {
@@ -152,9 +135,7 @@ namespace Portals
 
                             try
                             {
-                                var t = d.Substring(d.IndexOf(H24.TimeHtml) + H24.TimeHtml.Length).Split("\"")[0].Trim();
-                                DateTime dt = DateTime.Parse(t);
-                                article.Time = dt.ToString();
+                                article.Time = "<i>neuspjelo dohvaćanje vremena objave</i>";
                             }
                             catch
                             {
@@ -163,25 +144,18 @@ namespace Portals
 
                             try
                             {
-                                var c = d.Substring(d.IndexOf(H24.ContentHtml) + H24.ContentHtml.Length).Split(H24.ContentEndHtml)[0].Trim();
-                                foreach (var regex in H24.ContentRegex)
-                                {
-                                    MatchCollection matches = Regex.Matches(c, regex);
-                                    var content = "";
-                                    if (matches.Count > 0)
-                                        foreach (Match m in matches)
-                                        {
-                                            var s = m.Groups[1].ToString().Trim();
-                                            if (!s.Contains("Tema: <a") && !s.Contains("SERIJAL '") && !s.Contains("iframe"))
-                                                content += s + "<br><br>";
-                                        }
-
-                                    article.Content += content.Trim().Replace("<strong>POGLEDAJTE VIDEO:</strong>", "").Replace("<strong>POGLEDAJTE VIDEO</strong>", "").Replace("POGLEDAJTE VIDEO:", "").Replace("POGLEDAJTE VIDEO", "").Trim();
-                                }
+                                var idx = body.InnerHtml.IndexOf("<div class=\"article__text\">");
+                                var content = body.InnerHtml.Substring(idx).Replace("<div class=\"article__text\">", "");
+                                idx = content.IndexOf("</div>");
+                                content = content.Substring(0, idx).Trim();
+                                content = content.Replace("&gt;", ">").Replace("&lt;", "<").Replace("POGLEDAJTE VIDEO VIJESTI:", "").Replace("POGLEDAJTE VIDEO:", "").Replace("POGLEDAJTE VIDEO VIJESTI", "").Replace("POGLEDAJTE VIDEO", "");
+                                content = content.Replace("<iframe", "");
+                                article.Content = content;
                             }
                             catch
                             {
                                 article.Content = "exception";
+                                continue;
                             }
 
                             if (!articles.Contains(a => a.ID == article.ID))
@@ -334,26 +308,34 @@ namespace Portals
                     foreach (var title in article_titles)
                         if (title.GetClasses().Contains("title"))
                         {
-                            titles.Add(title.InnerText);
                             var str = title.InnerHtml;
                             var regex = "<a href=\"(.*?)\"";
                             MatchCollection matches = Regex.Matches(str, regex);
                             if (matches.Count > 0)
-                                foreach (Match match in matches)
+                            {
+                                var link = matches[0].Groups[1].ToString().Trim();
+                                if (!link.Contains("crna-kronika"))
                                 {
-                                    var link = match.Groups[1].ToString().Trim();
+                                    titles.Add(title.InnerText);
                                     links.Add(link);
                                 }
+                                else
+                                    continue;
+                            }
                         }
 
                     var article_ps = body.SelectNodes("//p");
                     foreach (var p in article_ps)
                         if (p.GetClasses().Contains("overline"))
+                        {
                             if (p.InnerHtml.Contains("<a href"))
                             {
                                 var lead = p.InnerHtml.Split("/\">")[1].Split("</a>")[0];
                                 leads.Add(lead);
                             }
+                            else
+                                leads.Add(p.InnerHtml);
+                        }
                 }
 
                 if (links.Count == leads.Count && leads.Count == titles.Count)

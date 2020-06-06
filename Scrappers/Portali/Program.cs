@@ -100,8 +100,8 @@ namespace Portals
                 {
                     var time = Utilities.StopWatch(() =>
                     {
-                        //if (!Utilities.TryCatch(() => H24 = Utilities.CreateList(PortalType.H24)))
-                            //Console.WriteLine("Exception occured while scrapping 24sata.hr");
+                        if (!Utilities.TryCatch(() => H24 = Utilities.CreateList(PortalType.H24)))
+                            Console.WriteLine("Exception occured while scrapping 24sata.hr");
 
                         if (!Utilities.TryCatch(() => Index = Utilities.CreateList(PortalType.Index)))
                             Console.WriteLine("Exception occured while scrapping index.hr");

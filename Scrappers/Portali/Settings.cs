@@ -29,23 +29,12 @@ namespace Portals
             "https://www.24sata.hr/feeds/news.xml"
         };
 
-        public static readonly string[] ContentRegex = new string[4]
-        {
-            "<p>(.*?)</p>",
-            "<p style=\"margin:0cm 0cm 10pt; text-align:start; -webkit-text-stroke-width:0px\">(.*?)</p>",
-            "<p dir=\"ltr\">(.*?)</p>",
-            "<div class=\"article__text\">(.*?)</div>"
-        };
-
         public static readonly string
                 BaseUrl1 = "https://www.24sata.hr/",
                 BaseUrl2 = "https://www.24sata.hr/news",
-                TimeHtml = "datetime=\"",
-                ContentHtml = "<div class=\"article__text\">",
-                ContentEndHtml = "<footer class=\"article__footer cf\">",
                 ArticleListHtml = "<div class=\"row\"><div class=\"ui segment\"><h1>@title@</h1><p>@lead@</p><a target=\"_blank\" href=\"@link@\"><button class=\"ui right floated primary button\">Otvori originalni članak</button></a><a href=\"/articles/24h&id=@article@\"><button class=\"ui right floated secondary button\">Pretpregledaj članak</button></a><br><br><br><br></div></div><br>",
                 ArticleHtml = File.ReadAllText("html/templates/24h-article.html"),
-                Html = File.ReadAllText("html/portals/24h.html").Replace("@articles@", "Nedostupno na neodređeno vrijeme zbog nedavne promjene dizajna što je pokvarilo kompatibilnost s ovim programom.");
+                Html = File.ReadAllText("html/portals/24h.html");
     }
 
     public static class Index

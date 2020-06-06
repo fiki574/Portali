@@ -35,15 +35,15 @@ namespace Portals
             else if (type == PortalType.Net)
                 return Net.ArticleHtml.Replace("@title@", Title).Replace("@lead@", Lead).Replace("@author@", Author).Replace("@time@", Time).Replace("@content@", Content).Replace("@link@", Link);
             else
-                return null; 
+                return null;
         }
 
         public bool IsValidArticle()
         {
-            if (Title != null && !Title.Equals("exception") && 
-                Lead != null && !Lead.Equals("exception") && 
-                Author != null && !Author.Equals("exception") && 
-                Time != null && !Time.Equals("exception") && 
+            if (Title != null && !Title.Equals("exception") &&
+                Lead != null && !Lead.Equals("exception") &&
+                Author != null && !Author.Equals("exception") &&
+                Time != null && !Time.Equals("exception") &&
                 Content != null && !Content.Equals("exception"))
                 return true;
             else
@@ -67,7 +67,7 @@ namespace Portals
             if (Time == null || Time.Equals("exception"))
                 Time = "<i>nema vremena objave</i>";
 
-            if (Content == null ||Content.Equals("exception"))
+            if (Content == null || Content.Equals("exception"))
                 Content = "<i>nema sadržaja</i>";
         }
 
@@ -99,6 +99,10 @@ namespace Portals
                 if (ID.ToLowerInvariant().Contains("https:"))
                     return false;
             }
+
+            if (Author.Equals("<i>nema autora</i>"))
+                return false;
+
             return true;
         }
 
