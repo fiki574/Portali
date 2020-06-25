@@ -95,10 +95,10 @@ namespace Portals
                 portal = "net.hr";
             }
 
-            ClearDirectory(path);
             articles = HapScrap.ScrapPortal(type);
             Console.WriteLine($"Scrapped {portal} -> Total articles: {articles.Count(a => true)}");
             articles = UpdateList(articles, type);
+            ClearDirectory(path);
             ThreadSafeList<string> remove = new ThreadSafeList<string>();
             articles.ForEach(a =>
             {

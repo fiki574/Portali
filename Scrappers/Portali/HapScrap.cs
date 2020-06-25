@@ -187,22 +187,25 @@ namespace Portals
                     return articles;
 
                 var article_links = body.SelectNodes("//a[@href]");
-                foreach (var link in article_links)
-                {
-                    string hrefValue = link.GetAttributeValue("href", string.Empty);
-                    if (link.GetClasses().Contains("vijesti-text-hover") && link.GetClasses().Contains("scale-img-hover") && link.GetClasses().Contains("flex"))
-                        links.Add(hrefValue);
-                }
+                if (article_links != null)
+                    foreach (var link in article_links)
+                    {
+                        string hrefValue = link.GetAttributeValue("href", string.Empty);
+                        if (link.GetClasses().Contains("vijesti-text-hover") && link.GetClasses().Contains("scale-img-hover") && link.GetClasses().Contains("flex"))
+                            links.Add(hrefValue);
+                    }
 
                 var article_titles = body.SelectNodes("//h3");
-                foreach (var title in article_titles)
-                    if (title.GetClasses().Contains("title"))
-                        titles.Add(title.InnerText);
+                if (article_titles != null)
+                    foreach (var title in article_titles)
+                        if (title.GetClasses().Contains("title"))
+                            titles.Add(title.InnerText);
 
                 var article_spans = body.SelectNodes("//span");
-                foreach (var summary in article_spans)
-                    if (summary.GetClasses().Contains("summary"))
-                        leads.Add(summary.InnerText);
+                if (article_spans != null)
+                    foreach (var summary in article_spans)
+                        if (summary.GetClasses().Contains("summary"))
+                            leads.Add(summary.InnerText);
 
                 if (links.Count == leads.Count && leads.Count == titles.Count)
                     for (int i = 0; i < links.Count; i++)
@@ -220,8 +223,19 @@ namespace Portals
                 for (int i = 0; i < articles.Count(ar => true); i++)
                 {
                     var article = articles[i];
-                    var article_document = web.Load(article.Link);
+                    HtmlDocument article_document = null;
+                    try
+                    {
+                        article_document = web.Load(article.Link);
+                    }
+                    catch
+                    {
+                        continue;
+                    }
+
                     var article_body = article_document.DocumentNode.SelectSingleNode("//body");
+                    if (article_body == null)
+                        continue;
 
                     HtmlNodeCollection article_span = null;
                     try
@@ -289,6 +303,8 @@ namespace Portals
             }
             else if (type == PortalType.Jutarnji)
             {
+                //TODO: fix due to design change
+
                 List<string> links = new List<string>();
                 List<string> titles = new List<string>();
                 List<string> leads = new List<string>();
@@ -305,24 +321,25 @@ namespace Portals
                     var body = document.DocumentNode.SelectSingleNode("//body");
 
                     var article_titles = body.SelectNodes("//h4");
-                    foreach (var title in article_titles)
-                        if (title.GetClasses().Contains("title"))
-                        {
-                            var str = title.InnerHtml;
-                            var regex = "<a href=\"(.*?)\"";
-                            MatchCollection matches = Regex.Matches(str, regex);
-                            if (matches.Count > 0)
+                    if (article_titles != null)
+                        foreach (var title in article_titles)
+                            if (title.GetClasses().Contains("title"))
                             {
-                                var link = matches[0].Groups[1].ToString().Trim();
-                                if (!link.Contains("crna-kronika"))
+                                var str = title.InnerHtml;
+                                var regex = "<a href=\"(.*?)\"";
+                                MatchCollection matches = Regex.Matches(str, regex);
+                                if (matches.Count > 0)
                                 {
-                                    titles.Add(title.InnerText);
-                                    links.Add(link);
+                                    var link = matches[0].Groups[1].ToString().Trim();
+                                    if (!link.Contains("crna-kronika"))
+                                    {
+                                        titles.Add(title.InnerText);
+                                        links.Add(link);
+                                    }
+                                    else
+                                        continue;
                                 }
-                                else
-                                    continue;
                             }
-                        }
 
                     var article_ps = body.SelectNodes("//p");
                     foreach (var p in article_ps)
@@ -446,29 +463,47 @@ namespace Portals
                 HtmlDocument[] documents = new HtmlDocument[pages];
                 documents[0] = doc;
                 for (int i = 1; i < pages; i++)
-                    documents[i] = web.Load(Vecernji.ScrapUrl + (i + 1).ToString());
+                {
+                    try
+                    {
+                        documents[i] = web.Load(Vecernji.ScrapUrl + (i + 1).ToString());
+                    }
+                    catch
+                    {
+                        documents[i] = null;
+                    }
+                }
 
                 foreach (var document in documents)
                 {
+                    if (document == null)
+                        continue;
+
                     var body = document.DocumentNode.SelectSingleNode("//body");
 
+                    if (body == null)
+                        continue;
+
                     var article_titles = body.SelectNodes("//h2");
-                    foreach (var title in article_titles)
-                        if (title.GetClasses().Contains("card__title"))
-                            all_titles.Add(title.InnerText);
+                    if (article_titles != null)
+                        foreach (var title in article_titles)
+                            if (title.GetClasses().Contains("card__title"))
+                                all_titles.Add(title.InnerText);
 
                     var article_leads = body.SelectNodes("//span");
-                    foreach (var span in article_leads)
-                        if (span.GetClasses().Contains("card__label") && span.GetClasses().Contains("card__label--article"))
-                            all_leads.Add(span.InnerText.Trim());
+                    if (article_leads != null)
+                        foreach (var span in article_leads)
+                            if (span.GetClasses().Contains("card__label") && span.GetClasses().Contains("card__label--article"))
+                                all_leads.Add(span.InnerText.Trim());
 
                     var article_links = body.SelectNodes("//a[@href]");
-                    foreach (var link in article_links)
-                        if (link.GetClasses().Contains("card__link"))
-                        {
-                            string hrefValue = link.GetAttributeValue("href", string.Empty);
-                            all_links.Add(hrefValue);
-                        }
+                    if (article_links != null)
+                        foreach (var link in article_links)
+                            if (link.GetClasses().Contains("card__link"))
+                            {
+                                string hrefValue = link.GetAttributeValue("href", string.Empty);
+                                all_links.Add(hrefValue);
+                            }
                 }
 
                 List<string> links = new List<string>();
@@ -524,8 +559,19 @@ namespace Portals
                 for (int i = 0; i < articles.Length; i++)
                 {
                     var article = articles[i];
-                    var article_document = web.Load(article.Link);
+                    HtmlDocument article_document = null;
+                    try
+                    {
+                        article_document = web.Load(article.Link);
+                    }
+                    catch
+                    {
+                        continue;
+                    }
+
                     var article_body = article_document.DocumentNode.SelectSingleNode("//body");
+                    if (article_body == null)
+                        continue;
 
                     HtmlNodeCollection article_spans = null;
                     try
@@ -650,39 +696,45 @@ namespace Portals
 
                 foreach (var document in documents)
                 {
+                    if (document == null)
+                        continue;
+
                     var body = document.DocumentNode.SelectSingleNode("//body");
+                    if (body == null)
+                        continue;
 
                     var article_articles = body.SelectNodes("//article");
-                    foreach (var article in article_articles)
-                        if (article.GetClasses().Contains("article-feed"))
-                        {
-                            var str = article.InnerHtml.Trim();
-                            var split = str.Split("<h2 class=\"overtitle danas\">");
-                            if (split.Length > 1)
+                    if (article_articles != null)
+                        foreach (var article in article_articles)
+                            if (article.GetClasses().Contains("article-feed"))
                             {
-                                var index = split[1].IndexOf("</h2>");
-                                var lead = split[1].Substring(0, index - 1).Trim();
-                                leads.Add(lead);
-
-                                var regex = "<h1 class=\"title\">(.*?)</h1>";
-                                MatchCollection matches = Regex.Matches(str, regex);
-                                if (matches.Count > 0)
-                                    foreach (Match match in matches)
-                                    {
-                                        var title = match.Groups[1].ToString().Trim();
-                                        titles.Add(title);
-                                        break;
-                                    }
-
-                                regex = "<a href=\"(.*?)\">";
-                                matches = Regex.Matches(str, regex);
-                                if (matches.Count > 1)
+                                var str = article.InnerHtml.Trim();
+                                var split = str.Split("<h2 class=\"overtitle danas\">");
+                                if (split.Length > 1)
                                 {
-                                    var link = matches[1].Groups[1].ToString().Trim();
-                                    links.Add(link);
+                                    var index = split[1].IndexOf("</h2>");
+                                    var lead = split[1].Substring(0, index - 1).Trim();
+                                    leads.Add(lead);
+
+                                    var regex = "<h1 class=\"title\">(.*?)</h1>";
+                                    MatchCollection matches = Regex.Matches(str, regex);
+                                    if (matches.Count > 0)
+                                        foreach (Match match in matches)
+                                        {
+                                            var title = match.Groups[1].ToString().Trim();
+                                            titles.Add(title);
+                                            break;
+                                        }
+
+                                    regex = "<a href=\"(.*?)\">";
+                                    matches = Regex.Matches(str, regex);
+                                    if (matches.Count > 1)
+                                    {
+                                        var link = matches[1].Groups[1].ToString().Trim();
+                                        links.Add(link);
+                                    }
                                 }
                             }
-                        }
                 }
 
                 if (links.Count == leads.Count && leads.Count == titles.Count)
@@ -719,89 +771,92 @@ namespace Portals
                         continue;
 
                     var article_body = article_document.DocumentNode.SelectSingleNode("//body");
+                    if (article_body == null)
+                        continue;
 
                     var article_divs = article_body.SelectNodes("//div");
-                    foreach (var div in article_divs)
-                    {
-                        if (div.GetClasses().Contains("metabox"))
+                    if (article_divs != null)
+                        foreach (var div in article_divs)
                         {
-                            string regex = "", str = "";
-                            MatchCollection matches = null;
-                            try
+                            if (div.GetClasses().Contains("metabox"))
                             {
-                                str = div.InnerHtml.Trim();
-                                regex = "<span>Autor:(.*?)</span>";
-                                matches = Regex.Matches(str, regex);
-                                if (matches.Count > 0)
-                                    foreach (Match match in matches)
-                                    {
-                                        var author = match.Groups[1].ToString().Trim();
-                                        article.Author = author;
-                                        break;
-                                    }
-                            }
-                            catch
-                            {
-                                article.Author = "exception";
-                            }
+                                string regex = "", str = "";
+                                MatchCollection matches = null;
+                                try
+                                {
+                                    str = div.InnerHtml.Trim();
+                                    regex = "<span>Autor:(.*?)</span>";
+                                    matches = Regex.Matches(str, regex);
+                                    if (matches.Count > 0)
+                                        foreach (Match match in matches)
+                                        {
+                                            var author = match.Groups[1].ToString().Trim();
+                                            article.Author = author;
+                                            break;
+                                        }
+                                }
+                                catch
+                                {
+                                    article.Author = "exception";
+                                }
 
-                            try
-                            {
-                                regex = "<span><i class=\"fa fa-clock-o\"></i>(.*?)</span>";
-                                matches = Regex.Matches(str, regex);
-                                if (matches.Count > 0)
-                                    foreach (Match match in matches)
-                                    {
-                                        var time = match.Groups[1].ToString().Trim();
-                                        article.Time = time;
-                                        break;
-                                    }
+                                try
+                                {
+                                    regex = "<span><i class=\"fa fa-clock-o\"></i>(.*?)</span>";
+                                    matches = Regex.Matches(str, regex);
+                                    if (matches.Count > 0)
+                                        foreach (Match match in matches)
+                                        {
+                                            var time = match.Groups[1].ToString().Trim();
+                                            article.Time = time;
+                                            break;
+                                        }
+                                }
+                                catch
+                                {
+                                    article.Time = "exception";
+                                }
                             }
-                            catch
+                            else if (div.GetClasses().Contains("article-content"))
                             {
-                                article.Time = "exception";
+                                try
+                                {
+                                    var str = div.InnerHtml;
+                                    var regex = "<h4>(.*?)</h4>";
+                                    MatchCollection matches = Regex.Matches(str, regex);
+                                    if (matches.Count > 0)
+                                        foreach (Match match in matches)
+                                        {
+                                            var lead = match.Groups[1].ToString().Trim();
+                                            article.Lead = lead;
+                                            break;
+                                        }
+                                }
+                                catch
+                                {
+                                    article.Lead = "exception";
+                                }
+
+                                try
+                                {
+                                    var content = "";
+                                    var article_ps = div.SelectNodes("//p");
+                                    foreach (var p in article_ps)
+                                        if (!p.GetClasses().Contains("description") && !p.GetClasses().Contains("undertitle"))
+                                        {
+                                            var s = p.InnerText;
+                                            if (!s.Contains("iframe"))
+                                                content += s + "<br><br>";
+                                        }
+
+                                    article.Content = content;
+                                }
+                                catch
+                                {
+                                    article.Content = "exception";
+                                }
                             }
                         }
-                        else if (div.GetClasses().Contains("article-content"))
-                        {
-                            try
-                            {
-                                var str = div.InnerHtml;
-                                var regex = "<h4>(.*?)</h4>";
-                                MatchCollection matches = Regex.Matches(str, regex);
-                                if (matches.Count > 0)
-                                    foreach (Match match in matches)
-                                    {
-                                        var lead = match.Groups[1].ToString().Trim();
-                                        article.Lead = lead;
-                                        break;
-                                    }
-                            }
-                            catch
-                            {
-                                article.Lead = "exception";
-                            }
-
-                            try
-                            {
-                                var content = "";
-                                var article_ps = div.SelectNodes("//p");
-                                foreach (var p in article_ps)
-                                    if (!p.GetClasses().Contains("description") && !p.GetClasses().Contains("undertitle"))
-                                    {
-                                        var s = p.InnerText;
-                                        if (!s.Contains("iframe"))
-                                            content += s + "<br><br>";
-                                    }
-
-                                article.Content = content;
-                            }
-                            catch
-                            {
-                                article.Content = "exception";
-                            }
-                        }
-                    }
                 }
             }
             return articles;
