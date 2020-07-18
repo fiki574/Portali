@@ -50,10 +50,8 @@ namespace Portals
     public static class Jutarnji
     {
         public static readonly string
-                BaseUrl = "https://www.jutarnji.hr/vijesti/hrvatska",
-                ScrapUrl1 = "https://www.jutarnji.hr/vijesti/hrvatska/?page=1",
-                ScrapUrl2 = "https://www.jutarnji.hr/vijesti/hrvatska/?page=2",
-                ScrapUrl3 = "https://www.jutarnji.hr/vijesti/hrvatska/?page=3",
+                BaseUrl = "https://www.jutarnji.hr",
+                ScrapUrl = "https://www.jutarnji.hr/vijesti/hrvatska",
                 ArticleListHtml = "<div class=\"row\"><div class=\"ui segment\"><h1>@title@</h1><p>@lead@</p><a target=\"_blank\" href=\"@link@\"><button class=\"ui right floated primary button\">Otvori originalni članak</button></a><a href=\"/articles/jutarnji&id=@article@\"><button class=\"ui right floated secondary button\">Pretpregledaj članak</button></a><br><br><br><br></div></div><br>",
                 ArticleHtml = File.ReadAllText("html/templates/jutarnji-article.html"),
                 Html = File.ReadAllText("html/portals/jutarnji.html");
