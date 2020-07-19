@@ -216,7 +216,7 @@ namespace Portals
                         if (summary.GetClasses().Contains("summary"))
                             leads.Add(summary.InnerText);
 
-                if (links.Count == leads.Count && leads.Count == titles.Count)
+                if (links.Count == titles.Count && titles.Count == leads.Count)
                     for (int i = 0; i < links.Count; i++)
                     {
                         var article = new Article
@@ -314,7 +314,6 @@ namespace Portals
             {
                 List<string> links = new List<string>();
                 List<string> titles = new List<string>();
-                List<string> times = new List<string>();
 
                 List<string> base64encoded_html = new List<string>();
                 try
@@ -335,9 +334,9 @@ namespace Portals
                         }
                     }
                 }
-                catch (Exception ex)
+                catch
                 {
-                    Console.WriteLine(ex.ToString());
+                    return articles;
                 }
 
                 HtmlDocument[] documents = new HtmlDocument[base64encoded_html.Count];
@@ -370,36 +369,29 @@ namespace Portals
                         var spans = body.SelectNodes("//span");
                         if (spans != null)
                             foreach (var span in spans)
-                            {
                                 if (span.GetClasses().Contains("card__title") && !titles.Contains(span.InnerText))
                                     titles.Add(span.InnerText);
-                                if (span.GetClasses().Contains("card__published") && !times.Contains(span.InnerText))
-                                    times.Add(span.InnerText);
-                            }
 
                         var articles_as = body.SelectNodes("//a[@href]");
                         if (articles_as != null)
                             foreach (var a in articles_as)
-                            {
                                 if (a.GetClasses().Contains("card__article-link"))
                                 {
                                     string hrefValue = a.GetAttributeValue("href", string.Empty);
                                     if (!links.Contains(hrefValue))
                                         links.Add(hrefValue);
                                 }
-                            }
                     }
                 }
 
-                if (links.Count == titles.Count && titles.Count == times.Count)
+                if (links.Count == titles.Count)
                     for (int i = 0; i < links.Count; i++)
                     {
                         var article = new Article
                         {
                             ID = links[i].Replace(Jutarnji.BaseUrl + "/", "").Replace('/', '-').TrimEnd('-').TrimStart('-'),
                             Link = Jutarnji.BaseUrl + links[i],
-                            Title = titles[i],
-                            Time = times[i]
+                            Title = titles[i]
                         };
 
                         if (article.Link.Contains("/vijesti/hrvatska"))
@@ -442,10 +434,10 @@ namespace Portals
                         foreach (var span in spans)
                         {
                             if (span.GetClasses().Contains("item__author-name"))
-                            {
                                 article.Author = span.InnerText;
-                                break;
-                            }
+
+                            if (span.GetClasses().Contains("item__author__date"))
+                                article.Time = span.InnerText;
                         }
 
                     if (divs != null)

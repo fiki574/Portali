@@ -144,15 +144,9 @@ namespace Portals
         [HttpHandler("/articles/24h")]
         private static string Handle24hArticle(HttpServer server, HttpListenerRequest request, Dictionary<string, string> parameters)
         {
-            var id = "";
             try
             {
-                if (!parameters.ContainsKey("id"))
-                    return "Neispravan zahtjev";
-
-                id = parameters["id"];
-                var html = File.ReadAllText($"html/articles/24h/{id}.html");
-                return html;
+                return File.ReadAllText($"html/articles/24h/{parameters["id"]}.html");
             }
             catch
             {
@@ -163,15 +157,9 @@ namespace Portals
         [HttpHandler("/articles/index")]
         private static string HandleIndexArticle(HttpServer server, HttpListenerRequest request, Dictionary<string, string> parameters)
         {
-            var id = "";
             try
             {
-                if (!parameters.ContainsKey("id"))
-                    return "Neispravan zahtjev";
-
-                id = parameters["id"];
-                var html = File.ReadAllText($"html/articles/index/{id}.html");
-                return html;
+                return File.ReadAllText($"html/articles/index/{parameters["id"]}.html");
             }
             catch
             {
@@ -182,15 +170,9 @@ namespace Portals
         [HttpHandler("/articles/jutarnji")]
         private static string HandleJutarnjiArticle(HttpServer server, HttpListenerRequest request, Dictionary<string, string> parameters)
         {
-            var id = "";
             try
             {
-                if (!parameters.ContainsKey("id"))
-                    return "Neispravan zahtjev";
-
-                id = parameters["id"];
-                var html = File.ReadAllText($"html/articles/jutarnji/{id}.html");
-                return html;
+                return File.ReadAllText($"html/articles/jutarnji/{parameters["id"]}.html");
             }
             catch
             {
@@ -201,15 +183,9 @@ namespace Portals
         [HttpHandler("/articles/vecernji")]
         private static string HandleVecernjiArticle(HttpServer server, HttpListenerRequest request, Dictionary<string, string> parameters)
         {
-            var id = "";
             try
             {
-                if (!parameters.ContainsKey("id"))
-                    return "Neispravan zahtjev";
-
-                id = parameters["id"];
-                var html = File.ReadAllText($"html/articles/vecernji/{id}.html");
-                return html;
+                return File.ReadAllText($"html/articles/vecernji/{parameters["id"]}.html"); ;
             }
             catch
             {
@@ -220,15 +196,9 @@ namespace Portals
         [HttpHandler("/articles/net")]
         private static string HandleNetArticle(HttpServer server, HttpListenerRequest request, Dictionary<string, string> parameters)
         {
-            var id = "";
             try
             {
-                if (!parameters.ContainsKey("id"))
-                    return "Neispravan zahtjev";
-
-                id = parameters["id"];
-                var html = File.ReadAllText($"html/articles/net/{id}.html");
-                return html;
+                return File.ReadAllText($"html/articles/net/{parameters["id"]}.html");
             }
             catch
             {
