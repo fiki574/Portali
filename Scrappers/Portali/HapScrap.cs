@@ -127,7 +127,11 @@ namespace Portals
                                 var article_ul = body.SelectNodes("//ul")[1];
                                 article.Author = article_ul.InnerHtml.Trim().Replace("<li>", "").Replace("</li>", ",").Trim();
                                 article.Author = article.Author.TrimEnd(',').Trim();
-                                article.Author = article.Author.Replace("<a href=\"https://www.24sata.hr/tagovi/", "").Trim().Replace("<a href=\"https://www.24sata.hr/autori/", "").Trim().Replace("\"></a>", "").Replace(" ", "").Replace("\n", "");
+                                article.Author = article.Author.Replace("<a href=\"https://www.24sata.hr/tagovi/", "").Trim().Replace("<a href=\"https://www.24sata.hr/autori/", "").Trim().Replace("\"></a>", "").Replace("\n", "");
+                                var idx = article.Author.IndexOf(">");
+                                var len = article.Author.Length;
+                                article.Author = article.Author.Substring(idx + 1, len - idx - 1);
+                                article.Author = article.Author.Replace("</a>", "");
                             }
                             catch
                             {
